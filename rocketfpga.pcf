@@ -39,7 +39,7 @@ set_io IO6 26
 
 # Other interfaces
 set_io -pullup yes -pullup_resistor 10K USER_BUTTON 9
-set_io CAPACITOR 13
+# set_io CAPACITOR 13
 set_io POT_1 6
 set_io POT_2 2
 set_io DIFF_IN 4

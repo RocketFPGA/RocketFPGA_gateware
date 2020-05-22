@@ -42,8 +42,6 @@ targets:
   default:
     default_tool : icestorm
     filesets : [soc, mem_files, rocketfpga]
-    generate: [icebreaker_pll]
-    parameters : [PLL=ICE40_PAD]
     tools:
       icestorm:
         yosys_synth_options: [-dsp]
@@ -51,56 +49,3 @@ targets:
         pnr: next
     toplevel : rocketfpga
 
-parameters:
-  PLL:
-    datatype : str
-    description : PLL type to use for main clock generation
-    paramtype : vlogparam
-  
-  SERV_CLEAR_RAM:
-    datatype  : bool
-    paramtype : vlogdefine
-
-  firmware:
-    datatype : file
-    description : Preload RAM with a hex file at runtime (overrides memfile)
-    paramtype : plusarg
-
-  memfile:
-    datatype    : file
-    description : Preload RAM with a hex file at compile-time
-    paramtype   : vlogparam
-
-  memsize:
-    datatype    : int
-    default     : 8192
-    description : Memory size in bytes for RAM (default 8kiB)
-    paramtype   : vlogparam
-
-  signature:
-    datatype : file
-    paramtype : plusarg
-  
-  uart_baudrate:
-    datatype : int
-    description : Treat q output as an UART with the specified baudrate (0 or omitted parameter disables UART decoding)
-    paramtype : plusarg
-
-  timeout:
-    datatype : int
-    paramtype : plusarg
-
-  vcd:
-    datatype : bool
-    paramtype : plusarg
-
-  vcd_start:
-    datatype    : int
-    description : Delay start of VCD dumping until the specified time
-    paramtype   : plusarg
-
-generate:
-  icebreaker_pll:
-    generator: icepll
-    parameters:
-      freq_out : 16

@@ -34,10 +34,10 @@ module rocketfpga
 	input  RXD,
 
 	// Low frequency ADC
-    output CAPACITOR,
-    output POT_1,
-    output POT_2,
-    input DIFF_IN,
+    // output CAPACITOR,
+    // output POT_1,
+    // output POT_2,
+    // input DIFF_IN,
 
 	// Debug Inteface
 	output IO7,
@@ -84,16 +84,16 @@ module rocketfpga
 	);
 
 	// Low frequency ADC
-	adc #(
-		.OUTSIZE(32),
-	) ADC1 (
-		.pot_1(POT_1),
-		.pot_2(POT_2),
-		.capacitor(CAPACITOR),
-		.osc(OSC),			// 49.152 MHz
-		.sense(DIFF_IN),
-		.out(pot_in)
-	);
+	// adc #(
+	// 	.OUTSIZE(32),
+	// ) ADC1 (
+	// 	.pot_1(POT_1),
+	// 	.pot_2(POT_2),
+	// 	.capacitor(CAPACITOR),
+	// 	.osc(OSC),			// 49.152 MHz
+	// 	.sense(DIFF_IN),
+	// 	.out(pot_in)
+	// );
 
 	// Audio clocking and reset
 	reg [7:0] divider;
