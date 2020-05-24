@@ -37,7 +37,7 @@ memory  #(
     .clk(bclk),
     .addr(memaddr),
     .datain(datain),
-    .dataout(dataout),
+    .dataout(outbuff),
 	.wren(wren)
 );
 

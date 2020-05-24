@@ -9,10 +9,10 @@ module rocketcpu_gpio
    input wire        i_gpio
 );
    reg mem = 0;
-   assign o_gpio = mem;
 
    always @(posedge i_wb_clk) begin
       o_wb_rdt[0] <= mem;
+      o_gpio <= mem;
       o_wb_rdt[1] <= !i_gpio;
 
       if (i_wb_cyc & i_wb_we)

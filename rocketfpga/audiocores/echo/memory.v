@@ -1,3 +1,4 @@
+`default_nettype none
 module memory #(
 	parameter BITSIZE = 24,
   parameter LENGHT = 1,
@@ -73,7 +74,7 @@ if (LENGHT >= 2) begin
   );
 end
 
-if (ADDRLEN >= 4) begin
+if (LENGHT >= 4) begin
   SB_SPRAM256KA M3 (
     .ADDRESS (addr[MEMLEN-1:0]), 
     .DATAIN (datain), 

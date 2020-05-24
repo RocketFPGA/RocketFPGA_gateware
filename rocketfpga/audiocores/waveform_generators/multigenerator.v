@@ -1,3 +1,5 @@
+`default_nettype none
+
 module sinetable #(
     parameter BITSIZE = 24,
     parameter PHASESIZE = 16,
@@ -99,7 +101,6 @@ always @(posedge bclk) begin
     
     if (lrclk) begin
         counter <= 0;
-        table_clock <= 0;
     end 
     
     if (counter == 0) begin
