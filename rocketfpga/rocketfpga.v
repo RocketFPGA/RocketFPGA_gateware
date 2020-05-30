@@ -49,9 +49,11 @@ module rocketfpga
 	wire [31:0] osc_3;
 	wire [31:0] osc_4;
 	wire [31:0] triggers;
-	wire [31:0] adsr;
 	wire [31:0] echo_offset;
 	wire [31:0] pot_in;
+
+	wire [31:0] adsr1_1;
+	wire [31:0] adsr1_2;
 
 	wire [31:0] matrix_1;
 	wire [31:0] matrix_2;
@@ -76,10 +78,11 @@ module rocketfpga
 		.param_3(osc_3),
 		.param_4(osc_4),	
 		.param_5(triggers),	
-		.param_6(adsr),	
-		.param_7(echo_offset),
-		.param_8(matrix_1),
-		.param_9(matrix_2),
+		.param_6(echo_offset),	
+		.param_7(matrix_1),
+		.param_8(matrix_2),
+		.param_9(adsr1_1),
+		.param_10(adsr1_2),
 
 		.iparam_1(pot_in),	
 	);
@@ -97,7 +100,7 @@ module rocketfpga
 	// );
 
 	// Audio clocking and reset
-	reg [7:0] divider;
+	reg [13:0] divider;
 	always @(posedge OSC) begin
 		divider <= divider + 1;
 	end
@@ -179,12 +182,12 @@ module rocketfpga
 		.SAMPLE_CLK_FREQ(48000),
 		.ACCUMULATOR_BITS(16),
 	) ENV1 (
-		.clk(DACLRC),
+		.clk(divider[12]),
 		.gate(triggers[0]),
-		.a(adsr[31 -: 4]),
-		.d(adsr[27 -: 4]),
-		.s(adsr[23 -: 4]),
-		.r(adsr[19 -: 4]),
+		.att(adsr1_1[31 -: 16]),
+		.dec(adsr1_1[15 -: 16]),
+		.sus(adsr1_2[31 -: 16]),
+		.rel(adsr1_2[15 -: 16]),
 		.amplitude(envelope),
 	);
 
