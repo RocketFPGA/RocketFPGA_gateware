@@ -70,6 +70,8 @@ module rocketcpu_audio_registers
 			32'h1000_001C  : o_wb_rdt <= regs[7];
 			32'h1000_0020  : o_wb_rdt <= regs[8];
 			32'h1000_0024  : o_wb_rdt <= regs[9];
+			
+			32'h1001_0000  : o_wb_rdt <= iparam_1;
 		endcase
    	end
 

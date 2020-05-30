@@ -34,10 +34,10 @@ module rocketfpga
 	input  RXD,
 
 	// Low frequency ADC
-    // output CAPACITOR,
-    // output POT_1,
-    // output POT_2,
-    // input DIFF_IN,
+    output CAPACITOR,
+    output POT_1,
+    output POT_2,
+    input DIFF_IN,
 );
 
 	localparam BITSIZE = 16;
@@ -88,16 +88,15 @@ module rocketfpga
 	);
 
 	// Low frequency ADC
-	// adc #(
-	// 	.OUTSIZE(32),
-	// ) ADC1 (
-	// 	.pot_1(POT_1),
-	// 	.pot_2(POT_2),
-	// 	.capacitor(CAPACITOR),
-	// 	.osc(OSC),			// 49.152 MHz
-	// 	.sense(DIFF_IN),
-	// 	.out(pot_in)
-	// );
+	// This can be done with Vcc and GND
+	assign POT_1 = 1'b1;
+	assign POT_2 = 1'b0;
+	adc ADC1 (
+		.capacitor(CAPACITOR),
+		.osc(OSC),			// 49.152 MHz
+		.sense(DIFF_IN),
+		.out(pot_in),
+	);
 
 	// Audio clocking and reset
 	reg [13:0] divider;
@@ -232,46 +231,46 @@ module rocketfpga
 		.right_chan (out_r)
 	);
 
-matrix #( 
-  .BITSIZE(BITSIZE),
-) M9x11 (
-	.clk(DACLRC),
-	
-	.in1(generator_out[0]),
-	.in2(generator_out[1]),
-	.in3(generator_out[2]),
-	.in4(generator_out[3]),
-	.in5(mixer_out),
-	.in6(mult_out),
-	.in7(echo_out),
-	.in8(envelope),
-	.in9(),
+	matrix #( 
+	.BITSIZE(BITSIZE),
+	) M9x11 (
+		.clk(DACLRC),
+		
+		.in1(generator_out[0]),
+		.in2(generator_out[1]),
+		.in3(generator_out[2]),
+		.in4(generator_out[3]),
+		.in5(mixer_out),
+		.in6(mult_out),
+		.in7(echo_out),
+		.in8(envelope),
+		.in9(),
 
-	.out1(mixer_in[0]),
-	.out2(mixer_in[1]),
-	.out3(mixer_in[2]),
-	.out4(mixer_in[3]),
-	.out5(mult_in1),
-	.out6(mult_in2),
-	.out7(echo_in),
-	.out8(out_r),
-	.out9(out_l),
-	.out10(),
-	.out11(),
+		.out1(mixer_in[0]),
+		.out2(mixer_in[1]),
+		.out3(mixer_in[2]),
+		.out4(mixer_in[3]),
+		.out5(mult_in1),
+		.out6(mult_in2),
+		.out7(echo_in),
+		.out8(out_r),
+		.out9(out_l),
+		.out10(),
+		.out11(),
 
-	.sel_out8(matrix_1[31 -: 4]),
-	.sel_out7(matrix_1[27 -: 4]),
-	.sel_out6(matrix_1[23 -: 4]),
-	.sel_out5(matrix_1[19 -: 4]),
-	.sel_out4(matrix_1[15 -: 4]),
-	.sel_out3(matrix_1[11 -: 4]),
-	.sel_out2(matrix_1[7 -: 4]),
-	.sel_out1(matrix_1[3 -: 4]),
+		.sel_out8(matrix_1[31 -: 4]),
+		.sel_out7(matrix_1[27 -: 4]),
+		.sel_out6(matrix_1[23 -: 4]),
+		.sel_out5(matrix_1[19 -: 4]),
+		.sel_out4(matrix_1[15 -: 4]),
+		.sel_out3(matrix_1[11 -: 4]),
+		.sel_out2(matrix_1[7 -: 4]),
+		.sel_out1(matrix_1[3 -: 4]),
 
-	.sel_out11(matrix_2[11 -: 4]),
-	.sel_out10(matrix_2[7 -: 4]),
-	.sel_out9(matrix_2[3 -: 4]),
-);
+		.sel_out11(matrix_2[11 -: 4]),
+		.sel_out10(matrix_2[7 -: 4]),
+		.sel_out9(matrix_2[3 -: 4]),
+	);
 
 
 endmodule

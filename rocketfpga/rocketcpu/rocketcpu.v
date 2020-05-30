@@ -107,7 +107,7 @@ module rocketcpu
 	wire [31:0] wb_mem_rdt_audio;
 	wire wb_mem_ack_audio;
 
-	assign wb_mem_audio_enabled = wb_mem_cyc && wb_mem_adr >=  32'h1000_0000  && wb_mem_adr <=  32'h1000_0040;
+	assign wb_mem_audio_enabled = wb_mem_cyc && wb_mem_adr >=  32'h1000_0000;
 
 	rocketcpu_audio_registers audio_regs (
 		.i_wb_clk (wb_clk),

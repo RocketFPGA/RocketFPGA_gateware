@@ -12,7 +12,7 @@ set_io FLASH_CS   16
 set_io FLASH_IO0  14
 set_io FLASH_IO1  17
 set_io FLASH_IO2  12
-set_io FLASH_IO3  13
+set_io FLASH_IO3  11
 
 # Onboard LEDs
 set_io LED     44
@@ -39,7 +39,7 @@ set_io IO6 26
 
 # Other interfaces
 set_io -pullup yes -pullup_resistor 10K USER_BUTTON 9
-# set_io CAPACITOR 13
+set_io CAPACITOR 13
 set_io POT_1 6
 set_io POT_2 2
 set_io DIFF_IN 4
