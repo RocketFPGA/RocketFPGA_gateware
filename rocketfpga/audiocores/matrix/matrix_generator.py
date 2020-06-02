@@ -1,6 +1,6 @@
 import math
 
-ins = 9
+ins = 10
 outs = 11
 
 v = """

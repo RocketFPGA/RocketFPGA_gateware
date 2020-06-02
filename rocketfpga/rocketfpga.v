@@ -59,6 +59,9 @@ module rocketfpga
 	wire [31:0] matrix_2;
 
 	wire [31:0] osc_type;
+
+	wire [31:0] modulator;
+
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
 		.led      		(LED),
@@ -85,6 +88,7 @@ module rocketfpga
 		.param_9(adsr1_1),
 		.param_10(adsr1_2),
 		.param_11(osc_type),
+		.param_12(modulator),
 
 		.iparam_1(pot_in),	
 	);
@@ -224,6 +228,23 @@ module rocketfpga
 		.out (echo_out),
 	);
 
+	// Modulator
+	wire signed [BITSIZE-1:0] mod_in1;
+	wire signed [BITSIZE-1:0] mod_in2;
+	wire signed [BITSIZE-1:0] mod_out;
+
+	modulator #( 
+		.BITSIZE(BITSIZE),
+	) MOD1 (
+		.bclk (BCLK), 
+		.lrclk (ADCLRC),
+		.in1(mod_in1),
+		.in2 (mod_in2),
+		.a (modulator[31 -: 16]),
+		.b (modulator[15 -: 16]),
+		.out (mod_out),
+	);
+
 	// Line out
 	wire signed [BITSIZE-1:0] out_r;
 	wire signed [BITSIZE-1:0] out_l;
@@ -240,7 +261,7 @@ module rocketfpga
 
 	matrix #( 
 	.BITSIZE(BITSIZE),
-	) M9x11 (
+	) M10x11 (
 		.clk(DACLRC),
 		
 		.in1(generator_out[0]),
@@ -251,7 +272,8 @@ module rocketfpga
 		.in6(mult_out),
 		.in7(echo_out),
 		.in8(envelope),
-		.in9(),
+		.in9(mod_out),
+		.in10(mic),
 
 		.out1(mixer_in[0]),
 		.out2(mixer_in[1]),
@@ -262,8 +284,8 @@ module rocketfpga
 		.out7(echo_in),
 		.out8(out_r),
 		.out9(out_l),
-		.out10(),
-		.out11(),
+		.out10(mod_in1),
+		.out11(mod_in2),
 
 		.sel_out8(matrix_1[31 -: 4]),
 		.sel_out7(matrix_1[27 -: 4]),

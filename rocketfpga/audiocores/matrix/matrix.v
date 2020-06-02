@@ -13,6 +13,7 @@ module matrix #(
     input [BITSIZE-1:0] in7,
     input [BITSIZE-1:0] in8,
     input [BITSIZE-1:0] in9,
+    input [BITSIZE-1:0] in10,
 
     output reg [BITSIZE-1:0] out1,
     output reg [BITSIZE-1:0] out2,
@@ -51,6 +52,7 @@ always @(posedge clk) begin
       7: out1 <= in7;
       8: out1 <= in8;
       9: out1 <= in9;
+      10: out1 <= in10;
    endcase
 end
 
@@ -66,6 +68,7 @@ always @(posedge clk) begin
       7: out2 <= in7;
       8: out2 <= in8;
       9: out2 <= in9;
+      10: out2 <= in10;
    endcase
 end
 
@@ -81,6 +84,7 @@ always @(posedge clk) begin
       7: out3 <= in7;
       8: out3 <= in8;
       9: out3 <= in9;
+      10: out3 <= in10;
    endcase
 end
 
@@ -96,6 +100,7 @@ always @(posedge clk) begin
       7: out4 <= in7;
       8: out4 <= in8;
       9: out4 <= in9;
+      10: out4 <= in10;
    endcase
 end
 
@@ -111,6 +116,7 @@ always @(posedge clk) begin
       7: out5 <= in7;
       8: out5 <= in8;
       9: out5 <= in9;
+      10: out5 <= in10;
    endcase
 end
 
@@ -126,6 +132,7 @@ always @(posedge clk) begin
       7: out6 <= in7;
       8: out6 <= in8;
       9: out6 <= in9;
+      10: out6 <= in10;
    endcase
 end
 
@@ -141,6 +148,7 @@ always @(posedge clk) begin
       7: out7 <= in7;
       8: out7 <= in8;
       9: out7 <= in9;
+      10: out7 <= in10;
    endcase
 end
 
@@ -156,6 +164,7 @@ always @(posedge clk) begin
       7: out8 <= in7;
       8: out8 <= in8;
       9: out8 <= in9;
+      10: out8 <= in10;
    endcase
 end
 
@@ -171,6 +180,7 @@ always @(posedge clk) begin
       7: out9 <= in7;
       8: out9 <= in8;
       9: out9 <= in9;
+      10: out9 <= in10;
    endcase
 end
 
@@ -186,6 +196,7 @@ always @(posedge clk) begin
       7: out10 <= in7;
       8: out10 <= in8;
       9: out10 <= in9;
+      10: out10 <= in10;
    endcase
 end
 
@@ -201,6 +212,7 @@ always @(posedge clk) begin
       7: out11 <= in7;
       8: out11 <= in8;
       9: out11 <= in9;
+      10: out11 <= in10;
    endcase
 end
 
@@ -209,8 +221,8 @@ endmodule
 
 //matrix #( 
 //   .BITSIZE(BITSIZE),
-//) M9x11 (
-//   .clk9(),
+//) M10x11 (
+//   .clk10(),
 //   .in1(),
 //   .in2(),
 //   .in3(),
@@ -220,6 +232,7 @@ endmodule
 //   .in7(),
 //   .in8(),
 //   .in9(),
+//   .in10(),
 
 //   .out1(),
 //   .out2(),
