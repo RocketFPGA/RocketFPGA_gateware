@@ -58,6 +58,7 @@ module rocketfpga
 	wire [31:0] matrix_1;
 	wire [31:0] matrix_2;
 
+	wire [31:0] osc_type;
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
 		.led      		(LED),
@@ -83,6 +84,7 @@ module rocketfpga
 		.param_8(matrix_2),
 		.param_9(adsr1_1),
 		.param_10(adsr1_2),
+		.param_11(osc_type),
 
 		.iparam_1(pot_in),	
 	);
@@ -149,6 +151,11 @@ module rocketfpga
 		.enable_2(1),
 		.enable_3(1),
 		.enable_4(1),
+
+		.type_1(osc_type[31 -: 2]),
+		.type_2(osc_type[29 -: 2]),
+		.type_3(osc_type[27 -: 2]),
+		.type_4(osc_type[25 -: 2]),
 
 		.out_1(generator_out[0]),
 		.out_2(generator_out[1]),

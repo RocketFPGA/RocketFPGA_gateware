@@ -20,6 +20,8 @@ module rocketcpu_audio_registers
 	output [31:0] 		  param_8,
 	output [31:0] 		  param_9,
 	output [31:0] 		  param_10,
+	output [31:0] 		  param_11,
+	output [31:0] 		  param_12,
 
 	input [31:0] iparam_1,
 );
@@ -35,6 +37,8 @@ module rocketcpu_audio_registers
 	assign param_8 = regs[7];
 	assign param_9 = regs[8];
 	assign param_10 = regs[9];
+	assign param_11 = regs[10];
+	assign param_12 = regs[11];
 
 	reg o_wb_ack_aux = 0;
 
@@ -56,6 +60,8 @@ module rocketcpu_audio_registers
 				32'h1000_001C  : regs[7] <= i_wb_dat;
 				32'h1000_0020  : regs[8] <= i_wb_dat;
 				32'h1000_0024  : regs[9] <= i_wb_dat;
+				32'h1000_0028  : regs[10] <= i_wb_dat;
+				32'h1000_002C  : regs[11] <= i_wb_dat;
 			endcase
 		end
 
@@ -70,6 +76,8 @@ module rocketcpu_audio_registers
 			32'h1000_001C  : o_wb_rdt <= regs[7];
 			32'h1000_0020  : o_wb_rdt <= regs[8];
 			32'h1000_0024  : o_wb_rdt <= regs[9];
+			32'h1000_0028  : o_wb_rdt <= regs[10];
+			32'h1000_002C  : o_wb_rdt <= regs[11];
 			
 			32'h1001_0000  : o_wb_rdt <= iparam_1;
 		endcase
