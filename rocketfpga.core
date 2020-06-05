@@ -21,6 +21,7 @@ filesets:
       - rocketfpga/rocketcpu/rocketcpu.v
       - rocketfpga/rocketcpu/spimemio.v
       - rocketfpga/rocketcpu/simpleuart.v
+      - rocketfpga/rocketcpu/rocketcpu_codec_spi.v
       - rocketfpga/audiocores/codec/configurator.v
       - rocketfpga/audiocores/codec/SPI.v
       - rocketfpga/audiocores/I2S/i2s_rx.v

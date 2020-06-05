@@ -17,6 +17,10 @@ module rocketcpu
 	output ser_tx,
 	input  ser_rx,
 
+	output codec_di, 
+    output codec_clk, 
+    output codec_cs, 
+
 	output [31:0] param_1,
 	output [31:0] param_2,
 	output [31:0] param_3,
@@ -184,7 +188,6 @@ module rocketcpu
 		.reset(wb_rst),
 
 		.i_wb_clk (wb_clk),
-		.i_wb_adr (wb_mem_adr),
 		.i_wb_cyc (wb_mem_uart_enabled),
 		.i_wb_we  (wb_mem_we) ,
 		.i_wb_sel (wb_mem_sel),
@@ -196,6 +199,23 @@ module rocketcpu
 		.ser_rx(ser_rx),
 	);
 
+	// Memory codec SPI
+	wire wb_mem_codecspi_enabled;
+	wire wb_mem_ack_codecspi;
+
+	assign wb_mem_codecspi_enabled = wb_mem_cyc && wb_mem_adr ==  32'h0100_0000;
+
+	rocketcpu_codec_spi codec1 (
+		.i_wb_clk (wb_clk),
+		.i_wb_cyc (wb_mem_codecspi_enabled),
+		.i_wb_we  (wb_mem_we) ,
+		.i_wb_dat (wb_mem_dat[15:0]),
+		.o_wb_ack (wb_mem_ack_codecspi),
+
+		.codec_di(codec_di),
+		.codec_clk(codec_clk),
+		.codec_cs(codec_cs),
+	);
 	
 	// Data and instructions bus arbiter
 	wire [31:0] 	wb_dbus_adr;
@@ -241,13 +261,14 @@ module rocketcpu
 						(wb_mem_gpio_enabled)	? wb_mem_rdt_gpio 	:
 						(wb_mem_timer_enabled)	? wb_mem_rdt_timer	: 32'b0;
 
-	assign wb_mem_ack = (wb_rst)				? 1'b0				:
-						(wb_mem_flash_enabled) 	? wb_mem_ack_flash 	:
-						(wb_mem_ram_enabled)	? wb_mem_ack_ram 	:
-						(wb_mem_uart_enabled)	? wb_mem_ack_uart 	:
-						(wb_mem_audio_enabled)	? wb_mem_ack_audio 	:
-						(wb_mem_gpio_enabled)	? 1'b1			 	:
-						(wb_mem_timer_enabled)	? 1'b1				: 1'b0;
+	assign wb_mem_ack = (wb_rst)					? 1'b0					:
+						(wb_mem_flash_enabled) 		? wb_mem_ack_flash 		:
+						(wb_mem_ram_enabled)		? wb_mem_ack_ram 		:
+						(wb_mem_uart_enabled)		? wb_mem_ack_uart 		:
+						(wb_mem_audio_enabled)		? wb_mem_ack_audio 		:
+						(wb_mem_codecspi_enabled)	? wb_mem_ack_codecspi 	:
+						(wb_mem_gpio_enabled)		? 1'b1			 		:
+						(wb_mem_timer_enabled)		? 1'b1					: 1'b0;
     
 	// SERV core
 	serv_rf_top

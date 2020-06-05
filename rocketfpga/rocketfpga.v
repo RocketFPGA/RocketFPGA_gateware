@@ -38,6 +38,9 @@ module rocketfpga
     output POT_1,
     output POT_2,
     input DIFF_IN,
+
+	output IO7,
+	output IO6,
 );
 
 	localparam BITSIZE = 16;
@@ -77,6 +80,10 @@ module rocketfpga
 		.ser_tx(TXD),
 		.ser_rx(RXD),
 
+		.codec_di(CODEC_MOSI),
+		.codec_clk(CODEC_SCLK),
+		.codec_cs(CODEC_CS),
+
 		.param_1(osc_1),
 		.param_2(osc_2),
 		.param_3(osc_3),
@@ -92,6 +99,9 @@ module rocketfpga
 
 		.iparam_1(pot_in),	
 	);
+
+	assign IO7 = CODEC_MOSI;
+	assign IO6 = CODEC_SCLK;
 
 	// Low frequency ADC
 	// This can be done with Vcc and GND
@@ -112,19 +122,19 @@ module rocketfpga
 
 	assign MCLK = divider[1]; // 12.288 MHz
 
-	configurator #(
-		.BITSIZE(BITSIZE),
-		.SAMPLING(SAMPLING),
-		.LINE_NOMIC(1'b0),
-		.ENABLE_MICBOOST(1'b1),
-	) conf (
-		.clk(divider[6]),
-		.spi_mosi(CODEC_MOSI), 
-		.spi_sck(CODEC_SCLK),
-		.cs(CODEC_CS),
-		.prereset(1'b1),
-		.done()
-	);
+	// configurator #(
+	// 	.BITSIZE(BITSIZE),
+	// 	.SAMPLING(SAMPLING),
+	// 	.LINE_NOMIC(1'b0),
+	// 	.ENABLE_MICBOOST(1'b1),
+	// ) conf (
+	// 	.clk(divider[6]),
+	// 	.spi_mosi(CODEC_MOSI), 
+	// 	.spi_sck(CODEC_SCLK),
+	// 	.cs(CODEC_CS),
+	// 	.prereset(1'b1),
+	// 	.done()
+	// );
 
 	// Line input or mic
 	wire signed [BITSIZE-1:0] mic;
