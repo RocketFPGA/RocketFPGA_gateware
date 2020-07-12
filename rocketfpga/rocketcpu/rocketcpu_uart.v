@@ -3,7 +3,6 @@ module rocketcpu_uart(
 	input wire            reset,
 
     input wire 		    i_wb_clk,
-    input wire [31:0]   i_wb_adr,
     input wire [31:0] 	i_wb_dat,
     input wire [3:0] 	i_wb_sel,
     input wire 		    i_wb_we,
