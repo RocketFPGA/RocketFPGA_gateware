@@ -122,20 +122,6 @@ module rocketfpga
 
 	assign MCLK = divider[1]; // 12.288 MHz
 
-	// configurator #(
-	// 	.BITSIZE(BITSIZE),
-	// 	.SAMPLING(SAMPLING),
-	// 	.LINE_NOMIC(1'b0),
-	// 	.ENABLE_MICBOOST(1'b1),
-	// ) conf (
-	// 	.clk(divider[6]),
-	// 	.spi_mosi(CODEC_MOSI), 
-	// 	.spi_sck(CODEC_SCLK),
-	// 	.cs(CODEC_CS),
-	// 	.prereset(1'b1),
-	// 	.done()
-	// );
-
 	// Line input or mic
 	wire signed [BITSIZE-1:0] mic;
 	i2s_rx #( 
