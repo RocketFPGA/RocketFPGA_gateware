@@ -64,6 +64,7 @@ module rocketfpga
 	wire [31:0] osc_type;
 
 	wire [31:0] modulator;
+	wire [31:0] overdrive;
 
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
@@ -96,6 +97,7 @@ module rocketfpga
 		.param_10(adsr1_2),
 		.param_11(osc_type),
 		.param_12(modulator),
+		.param_13(overdrive),
 
 		.iparam_1(pot_in),	
 	);
@@ -121,20 +123,6 @@ module rocketfpga
 	end
 
 	assign MCLK = divider[1]; // 12.288 MHz
-
-	// configurator #(
-	// 	.BITSIZE(BITSIZE),
-	// 	.SAMPLING(SAMPLING),
-	// 	.LINE_NOMIC(1'b0),
-	// 	.ENABLE_MICBOOST(1'b1),
-	// ) conf (
-	// 	.clk(divider[6]),
-	// 	.spi_mosi(CODEC_MOSI), 
-	// 	.spi_sck(CODEC_SCLK),
-	// 	.cs(CODEC_CS),
-	// 	.prereset(1'b1),
-	// 	.done()
-	// );
 
 	// Line input or mic
 	wire signed [BITSIZE-1:0] mic;
@@ -255,9 +243,21 @@ module rocketfpga
 		.out (mod_out),
 	);
 
+
+
 	// Line out
 	wire signed [BITSIZE-1:0] out_r;
 	wire signed [BITSIZE-1:0] out_l;
+	wire signed [BITSIZE-1:0] out_l_aux;
+
+
+	overdrive #( 
+		.BITSIZE(BITSIZE),
+	) OVD1 (
+		.gain (overdrive[15 -: 16]), 
+		.in (out_l),
+		.out (out_l_aux)
+	);
 
 	i2s_tx #( 
 		.BITSIZE(BITSIZE),
@@ -265,8 +265,8 @@ module rocketfpga
 		.sclk (BCLK), 
 		.lrclk (DACLRC),
 		.sdata (DACDAT),
-		.left_chan (out_l),
-		.right_chan (out_r)
+		.left_chan (out_l_aux),
+		.right_chan (out_l_aux)
 	);
 
 	matrix #( 
