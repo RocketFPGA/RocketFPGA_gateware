@@ -1,5 +1,6 @@
-// out = ((a*in2)+b) * in1
+`default_nettype none
 
+// out = ((a*in2)+b) * in1
 module modulator_multiplier #(
 	parameter BITSIZE = 16,
 )(	

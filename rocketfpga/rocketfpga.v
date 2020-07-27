@@ -65,6 +65,10 @@ module rocketfpga
 
 	wire [31:0] modulator;
 
+	wire [31:0] coefs_1;
+	wire [31:0] coefs_2;
+	wire [31:0] coefs_3;
+
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
 		.led      		(LED),
@@ -96,6 +100,9 @@ module rocketfpga
 		.param_10(adsr1_2),
 		.param_11(osc_type),
 		.param_12(modulator),
+		.param_13(coefs_1),
+		.param_14(coefs_2),
+		.param_15(coefs_3),
 
 		.iparam_1(pot_in),	
 	);
@@ -180,6 +187,21 @@ module rocketfpga
 		.in3(mixer_in[2]),
 		.in4(mixer_in[3]),
 		.out(mixer_out),
+	);
+
+	// ADSR
+	wire signed [BITSIZE-1:0] envelope;
+	envelope_generator #(
+		.SAMPLE_CLK_FREQ(48000),
+		.ACCUMULATOR_BITS(16),
+	) ENV1 (
+		.clk(divider[12]),
+		.gate(triggers[0]),
+		.att(adsr1_1[31 -: 16]),
+		.dec(adsr1_1[15 -: 16]),
+		.sus(adsr1_2[31 -: 16]),
+		.rel(adsr1_2[15 -: 16]),
+		.amplitude(envelope),
 	);
 
 	// ADSR
