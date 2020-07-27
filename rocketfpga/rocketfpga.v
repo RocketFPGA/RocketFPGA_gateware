@@ -204,6 +204,7 @@ module rocketfpga
 	multiplier #(
 		.BITSIZE(BITSIZE),
 	) M1 (
+		.clk(DACLRC),
 		.in1(mult_in1),
 		.in2(mult_in2),
 		.out(mult_out),

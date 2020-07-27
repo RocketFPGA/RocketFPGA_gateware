@@ -62,6 +62,11 @@ module envelope_generator #(
       max_acc <= {(ACCUMULATOR_BITS){1'b1}} - att;
   end
 
+  reg signed [ACCUMULATOR_BITS:0] min_sustain;
+  always @(dec) begin
+      min_sustain <= sustain_volume + dec;
+  end
+
   assign amplitude = {2'b00, accumulator[ACCUMULATOR_BITS-1 -: BITSIZE-2]};
 
   always @(posedge clk) begin
@@ -80,7 +85,7 @@ module envelope_generator #(
             if (!last_gate && gate) begin
                 state = ATTACK;
             end
-            if (accumulator >= sustain_volume) begin
+            if (accumulator >= min_sustain) begin
                 accumulator <= accumulator - dec;
             end else begin
                 state <= next_state(state, gate);
