@@ -14,6 +14,7 @@ module matrix #(
     input [BITSIZE-1:0] in8,
     input [BITSIZE-1:0] in9,
     input [BITSIZE-1:0] in10,
+    input [BITSIZE-1:0] in11,
 
     output reg [BITSIZE-1:0] out1,
     output reg [BITSIZE-1:0] out2,
@@ -26,6 +27,7 @@ module matrix #(
     output reg [BITSIZE-1:0] out9,
     output reg [BITSIZE-1:0] out10,
     output reg [BITSIZE-1:0] out11,
+    output reg [BITSIZE-1:0] out12,
 
     input [3:0] sel_out1,
     input [3:0] sel_out2,
@@ -38,6 +40,7 @@ module matrix #(
     input [3:0] sel_out9,
     input [3:0] sel_out10,
     input [3:0] sel_out11,
+    input [3:0] sel_out12,
 
 );
 always @(posedge clk) begin
@@ -53,6 +56,7 @@ always @(posedge clk) begin
       8: out1 <= in8;
       9: out1 <= in9;
       10: out1 <= in10;
+      11: out1 <= in11;
    endcase
 end
 
@@ -69,6 +73,7 @@ always @(posedge clk) begin
       8: out2 <= in8;
       9: out2 <= in9;
       10: out2 <= in10;
+      11: out2 <= in11;
    endcase
 end
 
@@ -85,6 +90,7 @@ always @(posedge clk) begin
       8: out3 <= in8;
       9: out3 <= in9;
       10: out3 <= in10;
+      11: out3 <= in11;
    endcase
 end
 
@@ -101,6 +107,7 @@ always @(posedge clk) begin
       8: out4 <= in8;
       9: out4 <= in9;
       10: out4 <= in10;
+      11: out4 <= in11;
    endcase
 end
 
@@ -117,6 +124,7 @@ always @(posedge clk) begin
       8: out5 <= in8;
       9: out5 <= in9;
       10: out5 <= in10;
+      11: out5 <= in11;
    endcase
 end
 
@@ -133,6 +141,7 @@ always @(posedge clk) begin
       8: out6 <= in8;
       9: out6 <= in9;
       10: out6 <= in10;
+      11: out6 <= in11;
    endcase
 end
 
@@ -149,6 +158,7 @@ always @(posedge clk) begin
       8: out7 <= in8;
       9: out7 <= in9;
       10: out7 <= in10;
+      11: out7 <= in11;
    endcase
 end
 
@@ -165,6 +175,7 @@ always @(posedge clk) begin
       8: out8 <= in8;
       9: out8 <= in9;
       10: out8 <= in10;
+      11: out8 <= in11;
    endcase
 end
 
@@ -181,6 +192,7 @@ always @(posedge clk) begin
       8: out9 <= in8;
       9: out9 <= in9;
       10: out9 <= in10;
+      11: out9 <= in11;
    endcase
 end
 
@@ -197,6 +209,7 @@ always @(posedge clk) begin
       8: out10 <= in8;
       9: out10 <= in9;
       10: out10 <= in10;
+      11: out10 <= in11;
    endcase
 end
 
@@ -213,6 +226,24 @@ always @(posedge clk) begin
       8: out11 <= in8;
       9: out11 <= in9;
       10: out11 <= in10;
+      11: out11 <= in11;
+   endcase
+end
+
+always @(posedge clk) begin
+   case (sel_out12)
+      0: out12 <= 0;
+      1: out12 <= in1;
+      2: out12 <= in2;
+      3: out12 <= in3;
+      4: out12 <= in4;
+      5: out12 <= in5;
+      6: out12 <= in6;
+      7: out12 <= in7;
+      8: out12 <= in8;
+      9: out12 <= in9;
+      10: out12 <= in10;
+      11: out12 <= in11;
    endcase
 end
 
@@ -221,8 +252,8 @@ endmodule
 
 //matrix #( 
 //   .BITSIZE(BITSIZE),
-//) M10x11 (
-//   .clk10(),
+//) M11x12 (
+//   .clk11(),
 //   .in1(),
 //   .in2(),
 //   .in3(),
@@ -233,6 +264,7 @@ endmodule
 //   .in8(),
 //   .in9(),
 //   .in10(),
+//   .in11(),
 
 //   .out1(),
 //   .out2(),
@@ -245,6 +277,7 @@ endmodule
 //   .out9(),
 //   .out10(),
 //   .out11(),
+//   .out12(),
 
 //   .sel_out1(),
 //   .sel_out2(),
@@ -257,5 +290,6 @@ endmodule
 //   .sel_out9(),
 //   .sel_out10(),
 //   .sel_out11(),
+//   .sel_out12(),
 //);
 

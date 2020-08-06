@@ -3,6 +3,25 @@
 module biquad_multiplier #(
 	parameter BITSIZE = 16,
 )(	
+    input wire clk,
+    input wire signed [BITSIZE-1:0] in1,
+    input wire signed [BITSIZE-1:0] in2,
+	output reg signed [BITSIZE-1:0] out,
+);
+
+reg signed [(BITSIZE*2)-1:0] aux;
+
+always @(clk) begin
+    aux <= in1 * in2;
+end
+
+assign out = aux[(BITSIZE*2)-3 -: BITSIZE];
+
+endmodule
+
+module biquad #(
+	parameter BITSIZE = 16,
+)(	
     input wire lrclk,
     input wire bclk,
 
@@ -12,58 +31,13 @@ module biquad_multiplier #(
     input wire signed [BITSIZE-1:0] a0,
     input wire signed [BITSIZE-1:0] a1,
     input wire signed [BITSIZE-1:0] a2,
-    input wire signed [BITSIZE-1:0] b0,
     input wire signed [BITSIZE-1:0] b1,
+    input wire signed [BITSIZE-1:0] b2
 );
 
-reg signed [(BITSIZE*2)-1:0] aux;
-
-
-always @(clk) begin
-    aux <= in1 * in2;
-end
-
-assign out = aux[(BITSIZE*2)-1 -: BITSIZE];
-
-endmodule
-
-module biquad #(
-	parameter BITSIZE = 16,
-)(	
-    input clk,
-
-    input wire signed [BITSIZE-1:0] in1,
-    input wire signed [BITSIZE-1:0] in2,
-
-	output reg signed [BITSIZE-1:0] out,
-);
-//                            b_0
-// x[n] ---> + ----------o-----X-----> + -----> y[n]
-//           ^           |             ^
-//           |          z-1            |
-//           |   -a_1    |    b_1      |
-//           + <---X-----o-----X-----> +
-//           ^           |             ^
-//           |          z-2            |
-//           |   -a_2    |    b_2      |
-//           ------X-----o-----X--------
-
-// PIPELINE:
-//  1. Multiply delay_2 by -a_2 -> aux_1
-//  2. Multiply delay_1 by -a_2 -> aux_2
-//  3. Sum aux_1 + aux_2        -> aux_1
-//  4. Sum aux_1 + input        -> aux_mid
-//  5. Multiply delay_2 by b_2  -> aux_1
-//  6. Multiply delay_1 by b_1  -> aux_2
-//  7. Sum aux_1 + aux_2        -> aux_1
-//  8. Multiply aux_mid by b_0  -> aux_2
-//  9. Sum aux_1 + aux_2        -> out
-// 10. delay_1                  -> delay_2
-// 11. aux_mid                  -> delay_1
-
-reg [BITSIZE-1:0] mult_in1;
-reg [BITSIZE-1:0] mult_in2;
-wire [BITSIZE-1:0] mult_out;
+reg signed [BITSIZE-1:0] mult_in1;
+reg signed [BITSIZE-1:0] mult_in2;
+wire signed [BITSIZE-1:0] mult_out;
 
 biquad_multiplier #(
     .BITSIZE(BITSIZE),
@@ -84,11 +58,6 @@ initial delay_1 = 0;
 initial delay_2 = 0; 
 
 reg [2:0] counter;
-
-always @(posedge lrclk) begin
-    out <= mult_out;
-end
-
 
 // https://www.earlevel.com/main/2012/11/26/biquad-c-source-code/
 
@@ -139,8 +108,9 @@ always @(posedge bclk) begin
         mult_in2 <= b2;
         counter <= counter + 1;
     end else if (counter == 5) begin
-        delay_2 <= aux_1 - mult_out
+        delay_2 <= aux_1 - mult_out;
         counter <= counter + 1;
     end
+end
 
 endmodule

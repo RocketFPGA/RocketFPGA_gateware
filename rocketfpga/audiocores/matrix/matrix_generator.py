@@ -1,7 +1,7 @@
 import math
 
-ins = 10
-outs = 11
+ins = 11
+outs = 12
 
 v = """
 module matrix #(
