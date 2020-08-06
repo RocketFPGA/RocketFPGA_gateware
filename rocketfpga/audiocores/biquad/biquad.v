@@ -1,5 +1,7 @@
 `default_nettype none
 
+// This filter divides the input by a 2 factor in order to not overdrive the signal.
+
 module biquad_multiplier #(
 	parameter BITSIZE = 16,
 )(	
@@ -15,7 +17,7 @@ always @(clk) begin
     aux <= in1 * in2;
 end
 
-assign out = aux[(BITSIZE*2)-3 -: BITSIZE];
+assign out = aux >>> BITSIZE - 2;
 
 endmodule
 
@@ -61,9 +63,9 @@ reg [2:0] counter;
 
 // https://www.earlevel.com/main/2012/11/26/biquad-c-source-code/
 
-//     double out = in * a0 + z1;
-//     z1 = in * a1 + z2 - b1 * out;
-//     z2 = in * a2 - b2 * out;
+//     double out = in * a0 + delay_1;
+//     delay_1 = in * a1 + delay_2 - b1 * out;
+//     delay_2 = in * a2 - b2 * out;
 //     return out;
 
 // PIPELINE:
@@ -84,12 +86,12 @@ always @(posedge bclk) begin
     end 
 
     if (counter == 0) begin
-        mult_in1 <= in;
+        mult_in1 <= (in >>> 1);
         mult_in2 <= a0;
         counter <= counter + 1;
     end else if (counter == 1) begin
         out <= mult_out + delay_1;
-        mult_in1 <= in;
+        mult_in1 <= (in >>> 1);
         mult_in2 <= a1;
         counter <= counter + 1;
     end else if (counter == 2) begin
@@ -99,7 +101,7 @@ always @(posedge bclk) begin
         counter <= counter + 1;
     end else if (counter == 3) begin
         delay_1 <= aux_1 - mult_out;
-        mult_in1 <= in;
+        mult_in1 <= (in >>> 1);
         mult_in2 <= a2;
         counter <= counter + 1;
     end else if (counter == 4) begin

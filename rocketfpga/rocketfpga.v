@@ -131,14 +131,14 @@ module rocketfpga
 
 	// Line input or mic
 	wire signed [BITSIZE-1:0] mic;
-	i2s_rx #( 
-		.BITSIZE(BITSIZE),
-	) I2SRX (
-		.sclk (BCLK), 
-		.lrclk (ADCLRC),
-		.sdata (ADCDAT),
-		.left_chan (mic),
-	);
+	// i2s_rx #( 
+	// 	.BITSIZE(BITSIZE),
+	// ) I2SRX (
+	// 	.sclk (BCLK), 
+	// 	.lrclk (ADCLRC),
+	// 	.sdata (ADCDAT),
+	// 	.left_chan (mic),
+	// );
 
 	// Multi waveform generator
 	wire [BITSIZE-1:0] generator_out [0:3];
@@ -155,24 +155,24 @@ module rocketfpga
 		.osc(OSC),
 
 		.enable_1(1),
-		.enable_2(1),
-		.enable_3(1),
-		.enable_4(1),
+		// .enable_2(1),
+		// .enable_3(1),
+		// .enable_4(1),
 
 		.type_1(osc_type[31 -: 2]),
-		.type_2(osc_type[29 -: 2]),
-		.type_3(osc_type[27 -: 2]),
-		.type_4(osc_type[25 -: 2]),
+		// .type_2(osc_type[29 -: 2]),
+		// .type_3(osc_type[27 -: 2]),
+		// .type_4(osc_type[25 -: 2]),
 
 		.out_1(generator_out[0]),
-		.out_2(generator_out[1]),
-		.out_3(generator_out[2]),
-		.out_4(generator_out[3]),
+		// .out_2(generator_out[1]),
+		// .out_3(generator_out[2]),
+		// .out_4(generator_out[3]),
 
 		.freq_1(osc_1),
-		.freq_2(osc_2),
-		.freq_3(osc_3),
-		.freq_4(osc_4),
+		// .freq_2(osc_2),
+		// .freq_3(osc_3),
+		// .freq_4(osc_4),
 	);
 
 	// Mixer 4
