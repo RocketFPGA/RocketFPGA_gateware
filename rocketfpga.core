@@ -34,6 +34,7 @@ filesets:
       - rocketfpga/audiocores/ADC/adc.v
       - rocketfpga/audiocores/matrix/matrix.v
       - rocketfpga/audiocores/modulator/modulator.v
+      - rocketfpga/audiocores/biquad/biquad.v
     file_type : verilogSource
     depend : [serv, "fusesoc:utils:generators"]
 

@@ -33,6 +33,9 @@ module rocketcpu
 	output [31:0] param_10,
 	output [31:0] param_11,
 	output [31:0] param_12,
+	output [31:0] param_13,
+	output [31:0] param_14,
+	output [31:0] param_15,
 
 	input [31:0] iparam_1,
 );
@@ -137,6 +140,9 @@ module rocketcpu
 		.param_10(param_10),
 		.param_11(param_11),
 		.param_12(param_12),
+		.param_13(param_13),
+		.param_14(param_14),
+		.param_15(param_15),
 
 		.iparam_1(iparam_1),
 	);
