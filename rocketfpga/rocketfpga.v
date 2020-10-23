@@ -69,6 +69,8 @@ module rocketfpga
 	wire [31:0] coefs_2;
 	wire [31:0] coefs_3;
 
+	wire [31:0] echo_coefs;
+
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
 		.led      		(LED),
@@ -103,6 +105,7 @@ module rocketfpga
 		.param_13(coefs_1),
 		.param_14(coefs_2),
 		.param_15(coefs_3),
+		.param_16(echo_coefs),
 
 		.iparam_1(pot_in),	
 	);
@@ -221,16 +224,18 @@ module rocketfpga
 	wire signed [BITSIZE-1:0] echo_in;
 	wire signed [BITSIZE-1:0] echo_out;
 
-	// echo #( 
-	// 	.BITSIZE(BITSIZE),
-	// ) E1 (
-	// 	.enable(triggers[5]),
-	// 	.bclk (BCLK), 
-	// 	.lrclk (ADCLRC),
-	// 	.offset(echo_offset),
-	// 	.in (echo_in),
-	// 	.out (echo_out),
-	// );
+	echo #( 
+		.BITSIZE(BITSIZE),
+	) E1 (
+		.enable(triggers[5]),
+		.bclk (BCLK), 
+		.lrclk (ADCLRC),
+		.lenght(echo_offset),
+		.input_gain(echo_coefs[31 -: 16]),
+		.feedback_gain(echo_coefs[15 -: 16]),
+		.in (echo_in),
+		.out (echo_out),
+	);
 
 	// Modulator
 	wire signed [BITSIZE-1:0] mod_in1;
@@ -253,21 +258,21 @@ module rocketfpga
 	wire signed [BITSIZE-1:0] biquad_in;
 	wire signed [BITSIZE-1:0] biquad_out;
 
-	biquad #( 
-		.BITSIZE(BITSIZE),
-	) BQD1 (
-		.bclk (BCLK), 
-		.lrclk (ADCLRC),
+	// biquad #( 
+	// 	.BITSIZE(BITSIZE),
+	// ) BQD1 (
+	// 	.bclk (BCLK), 
+	// 	.lrclk (ADCLRC),
 
-		.in (biquad_in),
-		.out (biquad_out),
+	// 	.in (biquad_in),
+	// 	.out (biquad_out),
 
-		.a0 (coefs_1[31 -: 16]),
-		.a1 (coefs_1[15 -: 16]),
-		.a2 (coefs_2[31 -: 16]),
-		.b1 (coefs_2[15 -: 16]),
-		.b2 (coefs_3[31 -: 16]),
-	);
+	// 	.a0 (coefs_1[31 -: 16]),
+	// 	.a1 (coefs_1[15 -: 16]),
+	// 	.a2 (coefs_2[31 -: 16]),
+	// 	.b1 (coefs_2[15 -: 16]),
+	// 	.b2 (coefs_3[31 -: 16]),
+	// );
 
 	// Line out
 	wire signed [BITSIZE-1:0] out_r;
