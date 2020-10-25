@@ -164,23 +164,66 @@ module rocketcpu
 		.i_gpio	  (button),
 	);
 
-	// Memory mapped timer
-   	wire timer_irq;
-	wire wb_mem_timer_enabled;
-	wire [31:0] wb_mem_rdt_timer;
+	// Memory mapped timers
+   	wire [1:0] timer_irq;
+	wire [1:0] wb_mem_timer_enabled;
+	wire [31:0] wb_mem_rdt_timer0;
+	wire [31:0] wb_mem_rdt_timer1;
 	
-	assign wb_mem_timer_enabled = wb_mem_cyc && wb_mem_adr ==  32'h0800_0000;
+	assign wb_mem_timer_enabled[0] = wb_mem_cyc && wb_mem_adr ==  32'h0800_0000;
+	assign wb_mem_timer_enabled[1] = wb_mem_cyc && wb_mem_adr ==  32'h0800_0004;
 
-	rocketcpu_timer
-      	#(.WIDTH (32)
-	) timer (
+	rocketcpu_timer #(
+		.WIDTH (32)
+	) timer0 (
 		.i_wb_clk (wb_clk),
-        .i_wb_cyc (wb_mem_timer_enabled),
+        .i_wb_cyc (wb_mem_timer_enabled[0]),
         .i_wb_we  (wb_mem_we) ,
         .i_wb_dat (wb_mem_dat),
-        .o_wb_rdt (wb_mem_rdt_timer),
+        .o_wb_rdt (wb_mem_rdt_timer0),
 
-		.o_irq    (timer_irq),
+		.o_irq    (timer_irq[0]),
+	);
+
+	rocketcpu_timer #(
+		.WIDTH (32)
+	) timer1 (
+		.i_wb_clk (wb_clk),
+        .i_wb_cyc (wb_mem_timer_enabled[1]),
+        .i_wb_we  (wb_mem_we) ,
+        .i_wb_dat (wb_mem_dat),
+        .o_wb_rdt (wb_mem_rdt_timer1),
+
+		.o_irq    (timer_irq[1]),
+	);
+
+	// IRQ Manager
+   	wire global_irq;
+	wire wb_mem_irq_enabled;
+	wire [31:0] wb_mem_rdt_irq;
+	wire wb_mem_ack_irq;
+
+	assign wb_mem_irq_enabled = wb_mem_cyc && (wb_mem_adr ==  32'h0900_0000 || wb_mem_adr ==  32'h0900_0004);
+
+	localparam IRQ_SIZE = 3;
+	wire [IRQ_SIZE-1:0] irq_connections;
+	assign irq_connections[0] = timer_irq[0];
+	assign irq_connections[1] = timer_irq[1];
+	assign irq_connections[2] = !button;
+
+	rocketcpu_irq #(
+		.SIZE (IRQ_SIZE)
+	) irq (
+		.i_wb_clk (wb_clk),
+		.i_wb_adr (wb_mem_adr),
+        .i_wb_cyc (wb_mem_irq_enabled),
+        .i_wb_we  (wb_mem_we) ,
+        .i_wb_dat (wb_mem_dat),
+        .o_wb_rdt (wb_mem_rdt_irq),
+		.o_wb_ack (wb_mem_ack_irq),
+
+		.o_irq    (global_irq),
+		.i_irq    (irq_connections),
 	);
 
 	// Memory mapped uart
@@ -260,12 +303,14 @@ module rocketcpu
 		.i_wb_cpu_ack (wb_mem_ack)
 	);
 
-	assign wb_mem_rdt = (wb_mem_flash_enabled) 	? wb_mem_rdt_flash 	:
-						(wb_mem_ram_enabled)	? wb_mem_rdt_ram 	:
-						(wb_mem_uart_enabled)	? wb_mem_rdt_uart 	:
-						(wb_mem_audio_enabled)	? wb_mem_rdt_audio 	:
-						(wb_mem_gpio_enabled)	? wb_mem_rdt_gpio 	:
-						(wb_mem_timer_enabled)	? wb_mem_rdt_timer	: 32'b0;
+	assign wb_mem_rdt = (wb_mem_flash_enabled) 		? wb_mem_rdt_flash 	:
+						(wb_mem_ram_enabled)		? wb_mem_rdt_ram 	:
+						(wb_mem_uart_enabled)		? wb_mem_rdt_uart 	:
+						(wb_mem_audio_enabled)		? wb_mem_rdt_audio 	:
+						(wb_mem_gpio_enabled)		? wb_mem_rdt_gpio 	:
+						(wb_mem_irq_enabled)		? wb_mem_rdt_irq	:
+						(wb_mem_timer_enabled[0])	? wb_mem_rdt_timer0	: 
+						(wb_mem_timer_enabled[1])	? wb_mem_rdt_timer1	: 32'b0;
 
 	assign wb_mem_ack = (wb_rst)					? 1'b0					:
 						(wb_mem_flash_enabled) 		? wb_mem_ack_flash 		:
@@ -273,8 +318,8 @@ module rocketcpu
 						(wb_mem_uart_enabled)		? wb_mem_ack_uart 		:
 						(wb_mem_audio_enabled)		? wb_mem_ack_audio 		:
 						(wb_mem_codecspi_enabled)	? wb_mem_ack_codecspi 	:
-						(wb_mem_gpio_enabled)		? 1'b1			 		:
-						(wb_mem_timer_enabled)		? 1'b1					: 1'b0;
+						(wb_mem_irq_enabled)		? wb_mem_ack_irq 	:
+						(wb_mem_gpio_enabled | wb_mem_timer_enabled) ? 1'b1 : 1'b0;
     
 	// SERV core
 	serv_rf_top
@@ -282,7 +327,7 @@ module rocketcpu
 	) cpu (
 		.clk      	  	(wb_clk),
 		.i_rst    	  	(wb_rst),
-		.i_timer_irq  	(timer_irq),
+		.i_timer_irq  	(global_irq),
 
 		.o_ibus_adr   	(wb_ibus_adr),
 		.o_ibus_cyc   	(wb_ibus_cyc),

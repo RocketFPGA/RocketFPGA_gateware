@@ -18,6 +18,7 @@ filesets:
       - rocketfpga/rocketcpu/rocketcpu_gpio.v
       - rocketfpga/rocketcpu/rocketcpu_arbiter.v
       - rocketfpga/rocketcpu/rocketcpu_ram.v
+      - rocketfpga/rocketcpu/rocketcpu_irq.v
       - rocketfpga/rocketcpu/rocketcpu.v
       - rocketfpga/rocketcpu/spimemio.v
       - rocketfpga/rocketcpu/simpleuart.v
