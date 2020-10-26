@@ -66,12 +66,25 @@ module rocketcpu
 	wire [31:0] 	wb_mem_rdt;
 	wire 			wb_mem_ack;
 
+	// MEMORY SUMMARY
+	// 0x00000000 - 0x00008000  | RAM 						| 32768 B
+	// 0x00100000 - 0x01FFFFFF  | Flash 					| 32505856 B
+	// 0x02000000 				| Flash config
+	// 0x03000000 				| Codec SPI
+	// 0x04000000 				| UART
+	// 0x05000000 				| GPIO
+	// 0x08000000 				| Timer1
+	// 0x08000004 				| Timer2
+	// 0x09000000 				| IRQ vector
+	// 0x09000004 				| IRQ mask
+	// 0x10000000 - end 		| Memory mapped registers
+
 	// Flash memory interface
 	wire wb_mem_flash_enabled;
 	wire [31:0] wb_mem_rdt_flash;
 	wire wb_mem_ack_flash;
 
-	assign wb_mem_flash_enabled = wb_mem_cyc && (wb_mem_adr >= 32'h0010_0000) && (wb_mem_adr < 32'h0200_0000);
+	assign wb_mem_flash_enabled = wb_mem_cyc && (wb_mem_adr >= 32'h0010_0000) && (wb_mem_adr <= 32'h0200_0000);
 
 	rocketcpu_flashio flash(   
 		.reset(wb_rst),
@@ -151,7 +164,7 @@ module rocketcpu
 	wire wb_mem_gpio_enabled;
 	wire [31:0] wb_mem_rdt_gpio;
 
-	assign wb_mem_gpio_enabled = wb_mem_cyc && wb_mem_adr ==  32'h0200_0000;
+	assign wb_mem_gpio_enabled = wb_mem_cyc && wb_mem_adr ==  32'h0500_0000;
 
 	rocketcpu_gpio gpio(
 		.i_wb_clk (wb_clk),
@@ -252,7 +265,7 @@ module rocketcpu
 	wire wb_mem_codecspi_enabled;
 	wire wb_mem_ack_codecspi;
 
-	assign wb_mem_codecspi_enabled = wb_mem_cyc && wb_mem_adr ==  32'h0100_0000;
+	assign wb_mem_codecspi_enabled = wb_mem_cyc && wb_mem_adr ==  32'h0300_0000;
 
 	rocketcpu_codec_spi codec1 (
 		.i_wb_clk (wb_clk),

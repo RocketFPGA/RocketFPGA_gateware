@@ -11,8 +11,8 @@ set_io FLASH_CLK  15
 set_io FLASH_CS   16
 set_io FLASH_IO0  14
 set_io FLASH_IO1  17
-set_io FLASH_IO2  12
-set_io FLASH_IO3  11
+set_io FLASH_IO2  47
+set_io FLASH_IO3  48
 
 # Onboard LEDs
 set_io LED     44

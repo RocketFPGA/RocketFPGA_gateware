@@ -21,9 +21,8 @@ module rocketcpu_flashio
     inout flash_io3,
 );
 
-    wire conf_sel  = 1'b0;
+    wire conf_sel  = i_wb_cyc && (i_wb_adr == 32'h 0200_0000);
     wire flash_sel = i_wb_cyc && !conf_sel;
-
 
     // Flash interface
     wire flash_io0_oe, flash_io0_do, flash_io0_di;
@@ -41,23 +40,15 @@ module rocketcpu_flashio
         .D_IN_0({flash_io3_di, flash_io2_di, flash_io1_di, flash_io0_di})
     );
 
-    always @(posedge i_wb_clk) begin
-        if (flash_sel) begin
-            o_wb_ack <= o_wb_ack_spiflash;
-            o_wb_rdt <= o_wb_rdt_spiflash;
-        end else if (conf_sel) begin
-            o_wb_ack <= o_wb_ack_spiflash;
-            o_wb_rdt <= o_wb_rdt_spiflash_conf;
-        end else begin
-            o_wb_ack <= 0;
-            o_wb_rdt <= 0;
-        end
-    end
-
     // SPI Memory from 0x0010_0000 to 0x0200_0000
     wire [31:0] 	o_wb_rdt_spiflash;
     wire [31:0] 	o_wb_rdt_spiflash_conf;
     wire          o_wb_ack_spiflash;
+
+    always @(posedge i_wb_clk) begin
+        o_wb_ack <= (flash_sel) ? o_wb_ack_spiflash : (conf_sel) ?  conf_sel : 0;
+        o_wb_rdt <= (flash_sel) ? o_wb_rdt_spiflash : o_wb_rdt_spiflash_conf;
+    end
 
     spimemio spimemio (
         .clk    (i_wb_clk),
@@ -85,7 +76,7 @@ module rocketcpu_flashio
         .flash_io2_di (flash_io2_di),
         .flash_io3_di (flash_io3_di),
 
-        .cfgreg_we(conf_sel ? i_wb_sel : 4'b 0000),
+        .cfgreg_we((conf_sel && i_wb_we) ? i_wb_sel : 4'b0000),
         .cfgreg_di(i_wb_dat),
         .cfgreg_do(o_wb_rdt_spiflash_conf)
     );
