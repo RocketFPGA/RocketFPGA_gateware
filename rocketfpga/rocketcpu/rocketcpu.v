@@ -218,11 +218,12 @@ module rocketcpu
 
 	assign wb_mem_irq_enabled = wb_mem_cyc && (wb_mem_adr ==  32'h0900_0000 || wb_mem_adr ==  32'h0900_0004);
 
-	localparam IRQ_SIZE = 3;
+	localparam IRQ_SIZE = 4;
 	wire [IRQ_SIZE-1:0] irq_connections;
 	assign irq_connections[0] = timer_irq[0];
 	assign irq_connections[1] = timer_irq[1];
-	assign irq_connections[2] = !button;
+	assign irq_connections[2] = uart_irq;
+	assign irq_connections[3] = !button;
 
 	rocketcpu_irq #(
 		.SIZE (IRQ_SIZE)
@@ -241,6 +242,7 @@ module rocketcpu
 
 	// Memory mapped uart
 	wire wb_mem_uart_enabled;
+	wire uart_irq;
 	wire [31:0] wb_mem_rdt_uart;
 	wire wb_mem_ack_uart;
 
@@ -259,6 +261,7 @@ module rocketcpu
 
 		.ser_tx(ser_tx),
 		.ser_rx(ser_rx),
+		.irq(uart_irq),
 	);
 
 	// Memory codec SPI
