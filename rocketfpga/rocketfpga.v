@@ -122,7 +122,7 @@ module rocketfpga
 		// Pots Shield specific
 		.charlieleds({IO4, IO5, IO6, IO7}),
 		.spi_adc({IO11, IO10, IO9, IO8}),
-		.buttons({!IO12, !IO13, !IO14, !IO15}),
+		.buttons({!IO15, !IO14, !IO13, !IO12}),
 	);
 
 	// Audio clocking and reset
