@@ -5,7 +5,7 @@ module rocketcpu
 	input  external_rst,
 
 	output led,
-	input  button,
+	input [3:0] buttons,
 
 	output flash_csb,
 	output flash_clk,
@@ -20,6 +20,9 @@ module rocketcpu
 	output codec_di, 
     output codec_clk, 
     output codec_cs, 
+
+    inout [3:0] charlieleds, 
+    inout [3:0] spi_adc, 
 
 	output [31:0] param_1,
 	output [31:0] param_2,
@@ -36,6 +39,7 @@ module rocketcpu
 	output [31:0] param_13,
 	output [31:0] param_14,
 	output [31:0] param_15,
+	output [31:0] param_16,
 
 	input [31:0] iparam_1,
 );
@@ -77,6 +81,8 @@ module rocketcpu
 	// 0x08000004 				| Timer2
 	// 0x09000000 				| IRQ vector
 	// 0x09000004 				| IRQ mask
+	// 0x0A000000 				| Chalieplexed LEDs
+	// 0x0B000000 - 0x0B00001C	| Memory mapped ADC128S102
 	// 0x10000000 - end 		| Memory mapped registers
 
 	// Flash memory interface
@@ -156,6 +162,7 @@ module rocketcpu
 		.param_13(param_13),
 		.param_14(param_14),
 		.param_15(param_15),
+		.param_16(param_16),
 
 		.iparam_1(iparam_1),
 	);
@@ -174,7 +181,7 @@ module rocketcpu
 		.o_wb_rdt (wb_mem_rdt_gpio),
 
 		.o_gpio   (led),
-		.i_gpio	  (button),
+		.i_gpio	  (buttons),
 	);
 
 	// Memory mapped timers
@@ -218,12 +225,15 @@ module rocketcpu
 
 	assign wb_mem_irq_enabled = wb_mem_cyc && (wb_mem_adr ==  32'h0900_0000 || wb_mem_adr ==  32'h0900_0004);
 
-	localparam IRQ_SIZE = 4;
+	localparam IRQ_SIZE = 7;
 	wire [IRQ_SIZE-1:0] irq_connections;
 	assign irq_connections[0] = timer_irq[0];
 	assign irq_connections[1] = timer_irq[1];
 	assign irq_connections[2] = uart_irq;
-	assign irq_connections[3] = !button;
+	assign irq_connections[3] = buttons[0];
+	assign irq_connections[4] = buttons[1];
+	assign irq_connections[5] = buttons[2];
+	assign irq_connections[6] = buttons[3];
 
 	rocketcpu_irq #(
 		.SIZE (IRQ_SIZE)
@@ -239,6 +249,47 @@ module rocketcpu
 		.o_irq    (global_irq),
 		.i_irq    (irq_connections),
 	);
+
+	// Charlieplexed LEDs
+	wire wb_mem_charlieleds_enabled;
+	wire [31:0] wb_mem_rdt_charlieleds;
+
+	assign wb_mem_charlieleds_enabled = wb_mem_cyc && (wb_mem_adr ==  32'h0A00_0000);
+
+	rocketcpu_leds_charlieplexed #(
+		.SIZE (12)
+	) charlieplexedleds (
+		.i_wb_clk (wb_clk),
+        .i_wb_cyc (wb_mem_charlieleds_enabled),
+        .i_wb_we  (wb_mem_we) ,
+        .i_wb_dat (wb_mem_dat),
+        .o_wb_rdt (wb_mem_rdt_charlieleds),
+
+		.o_gpio    (charlieleds),
+	);
+
+	// Memory mapped ADC128S102
+	wire wb_mem_adcspi_enabled;
+	wire [31:0] wb_mem_rdt_adcspi;
+	wire wb_mem_ack_adcspi;
+
+	assign wb_mem_adcspi_enabled = wb_mem_cyc && (wb_mem_adr >=  32'h0B00_0000) && (wb_mem_adr <= 32'h0B00_001C);
+
+	rocketcpu_ADC128S102 adc1 (
+		.reset(wb_rst),
+
+		.i_wb_clk(wb_clk),
+		.i_wb_adr (wb_mem_adr),
+		.i_wb_cyc(wb_mem_adcspi_enabled),
+		.o_wb_rdt(wb_mem_rdt_adcspi),
+		.o_wb_ack (wb_mem_ack_adcspi),
+
+		.clk  (spi_adc[0]),
+		.din  (spi_adc[1]),
+		.dout (spi_adc[2]),
+		.n_cs (spi_adc[3]),
+	);
+
 
 	// Memory mapped uart
 	wire wb_mem_uart_enabled;
@@ -319,23 +370,26 @@ module rocketcpu
 		.i_wb_cpu_ack (wb_mem_ack)
 	);
 
-	assign wb_mem_rdt = (wb_mem_flash_enabled) 		? wb_mem_rdt_flash 	:
-						(wb_mem_ram_enabled)		? wb_mem_rdt_ram 	:
-						(wb_mem_uart_enabled)		? wb_mem_rdt_uart 	:
-						(wb_mem_audio_enabled)		? wb_mem_rdt_audio 	:
-						(wb_mem_gpio_enabled)		? wb_mem_rdt_gpio 	:
-						(wb_mem_irq_enabled)		? wb_mem_rdt_irq	:
-						(wb_mem_timer_enabled[0])	? wb_mem_rdt_timer0	: 
-						(wb_mem_timer_enabled[1])	? wb_mem_rdt_timer1	: 32'b0;
+	assign wb_mem_rdt = (wb_mem_flash_enabled) 			? wb_mem_rdt_flash 			:
+						(wb_mem_ram_enabled)			? wb_mem_rdt_ram 			:
+						(wb_mem_uart_enabled)			? wb_mem_rdt_uart 			:
+						(wb_mem_audio_enabled)			? wb_mem_rdt_audio 			:
+						(wb_mem_gpio_enabled)			? wb_mem_rdt_gpio 			:
+						(wb_mem_charlieleds_enabled)	? wb_mem_rdt_charlieleds 	:
+						(wb_mem_adcspi_enabled)			? wb_mem_rdt_adcspi		 	:
+						(wb_mem_irq_enabled)			? wb_mem_rdt_irq			:
+						(wb_mem_timer_enabled[0])		? wb_mem_rdt_timer0			: 
+						(wb_mem_timer_enabled[1])		? wb_mem_rdt_timer1			: 32'b0;
 
-	assign wb_mem_ack = (wb_rst)					? 1'b0					:
-						(wb_mem_flash_enabled) 		? wb_mem_ack_flash 		:
-						(wb_mem_ram_enabled)		? wb_mem_ack_ram 		:
-						(wb_mem_uart_enabled)		? wb_mem_ack_uart 		:
-						(wb_mem_audio_enabled)		? wb_mem_ack_audio 		:
-						(wb_mem_codecspi_enabled)	? wb_mem_ack_codecspi 	:
-						(wb_mem_irq_enabled)		? wb_mem_ack_irq 	:
-						(wb_mem_gpio_enabled | wb_mem_timer_enabled) ? 1'b1 : 1'b0;
+	assign wb_mem_ack = (wb_rst)						? 1'b0						:
+						(wb_mem_flash_enabled) 			? wb_mem_ack_flash 			:
+						(wb_mem_ram_enabled)			? wb_mem_ack_ram 			:
+						(wb_mem_uart_enabled)			? wb_mem_ack_uart 			:
+						(wb_mem_audio_enabled)			? wb_mem_ack_audio 			:
+						(wb_mem_codecspi_enabled)		? wb_mem_ack_codecspi 		:
+						(wb_mem_irq_enabled)			? wb_mem_ack_irq 			:
+						(wb_mem_adcspi_enabled)			? wb_mem_ack_adcspi			:
+						(wb_mem_gpio_enabled | wb_mem_timer_enabled | wb_mem_charlieleds_enabled ) ? 1'b1 : 1'b0;
     
 	// SERV core
 	serv_rf_top

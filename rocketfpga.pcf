@@ -1,6 +1,6 @@
 # 49.152 MHz Oscillator
 set_io OSC         37
-# set_io PRE_RESET 16
+set_io PRE_RESET   48
 
 # RS232
 set_io RXD      18
@@ -11,35 +11,44 @@ set_io FLASH_CLK  15
 set_io FLASH_CS   16
 set_io FLASH_IO0  14
 set_io FLASH_IO1  17
-set_io FLASH_IO2  47
-set_io FLASH_IO3  48
+set_io FLASH_IO2  12
+set_io FLASH_IO3  13
 
 # Onboard LEDs
-set_io LED     44
+set_io LED     47
 
 # CODEC SPI Interface
-set_io CODEC_SCLK 21
-set_io CODEC_MOSI 20
-set_io CODEC_CS 42
-set_io -pullup yes -pullup_resistor 10K CSMODE 38
+#set_io CODEC_SCLK 41
+#set_io CODEC_MOSI 40
+set_io CODEC_SCLK 9
+set_io CODEC_MOSI 10
+set_io CODEC_CS 39
 
 # I2S Interface
 set_io MCLK 36
-set_io BCLK 35
-set_io ADCLRC 28
-set_io DACLRC 32
-set_io ADCDAT 31
-set_io DACDAT 34
+set_io BCLK 34
+set_io ADCLRC 27
+set_io DACLRC 31
+set_io ADCDAT 28
+set_io DACDAT 32
 
-# Debug interface
-set_io IO7 27
-set_io IO6 26
-#set_io IO5 25
-#set_io IO4 23
 
-# Other interfaces
-set_io -pullup yes -pullup_resistor 10K USER_BUTTON 9
-set_io CAPACITOR 13
-set_io POT_1 6
-set_io POT_2 2
-set_io DIFF_IN 4
+# External interface
+#set_io IO0  9
+#set_io IO1  10
+set_io IO0  41
+set_io IO1  40
+set_io IO2  4
+set_io IO3  20
+set_io IO4  21
+set_io IO5  23
+set_io IO6  25
+set_io IO7  26
+set_io IO8  2
+set_io IO9  3
+set_io IO10 46
+set_io IO11 45
+set_io IO12 44
+set_io IO13 43
+set_io IO14 42
+set_io IO15 38

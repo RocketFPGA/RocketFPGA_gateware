@@ -1,3 +1,5 @@
+`default_nettype none
+
 module echo #(
 	parameter BITSIZE = 16,
 	parameter LENGHT = 1,
@@ -8,6 +10,9 @@ module echo #(
 	input wire lrclk,
 
 	input wire [31:0] offset,
+
+	input wire [BITSIZE-1:0] dry_gain,
+    input wire [BITSIZE-1:0] wet_gain,
 
 	input wire signed [BITSIZE-1:0] in,
 	output wire signed [BITSIZE-1:0] out,
@@ -28,6 +33,7 @@ reg wren;
 reg [ADDRLEN-1:0] memaddr;
 reg signed [BITSIZE-1:0] datain;
 reg signed [BITSIZE-1:0] dataout;
+reg signed [BITSIZE-1:0] gain_reg;
 wire signed [BITSIZE-1:0] outbuff;
 
 memory  #( 
@@ -41,7 +47,20 @@ memory  #(
 	.wren(wren)
 );
 
-assign out = (cleaning || !enable) ? 0 : dataout; 
+reg signed  [BITSIZE-1:0] mult_in1;
+reg 	    [BITSIZE-1:0] mult_in2;
+wire signed [BITSIZE-1:0] mult_out;
+
+attenuator #(
+	.BITSIZE(BITSIZE),
+) A1 (
+	.clk(bclk),
+	.in(mult_in1),
+	.att(mult_in2),
+	.out(mult_out),
+);
+
+assign out = (cleaning || !enable) ? 0 : outbuff; 
 
 always @(posedge bclk) begin
 	if(lrclk)
@@ -51,20 +70,29 @@ always @(posedge bclk) begin
 		cleaning <= 0;
 		
 	if (counter == 1) begin
-		if (cleaning)
+		if (cleaning || !enable)
 			datain <= 0;
 		else
-			datain <= (in >>> 1) + (dataout >>> 1);
+			datain <= gain_reg + dataout;
 		wren <= 1;
 		memaddr <= wr_ptr;
 		counter <= counter + 1;
 	end else if (counter == 2) begin
 		wren <= 0;
-		memaddr <= wr_ptr + offset;  //Here is where lenght of echo is set
+		memaddr <= wr_ptr - offset[ADDRLEN-1:0];  //Here is where lenght of echo is set
 		counter <= counter + 1; 
 	end else if (counter == 3) begin
-		dataout <= outbuff;
+		mult_in1 <= outbuff;
+		mult_in2 <= wet_gain;
 		wr_ptr <= wr_ptr + 1;
+		counter <= counter + 1;
+	end else if (counter == 4) begin
+		dataout <= mult_out;
+		mult_in1 <= in;
+		mult_in2 <= dry_gain;
+		counter <= counter + 1;
+	end else if (counter == 5) begin
+		gain_reg <= mult_out;
 		counter <= counter + 1;
 	end
 end

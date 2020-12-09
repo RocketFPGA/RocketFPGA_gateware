@@ -18,6 +18,8 @@ filesets:
       - rocketfpga/rocketcpu/rocketcpu_gpio.v
       - rocketfpga/rocketcpu/rocketcpu_arbiter.v
       - rocketfpga/rocketcpu/rocketcpu_ram.v
+      - rocketfpga/rocketcpu/rocketcpu_chalieleds.v
+      - rocketfpga/rocketcpu/rocketcpu_ADC128S102.v
       - rocketfpga/rocketcpu/rocketcpu_irq.v
       - rocketfpga/rocketcpu/rocketcpu.v
       - rocketfpga/rocketcpu/spimemio.v
@@ -35,6 +37,7 @@ filesets:
       - rocketfpga/audiocores/matrix/matrix.v
       - rocketfpga/audiocores/modulator/modulator.v
       - rocketfpga/audiocores/biquad/biquad.v
+      - rocketfpga/audiocores/attenuator/attenuator.v
     file_type : verilogSource
     depend : [serv, "fusesoc:utils:generators"]
 

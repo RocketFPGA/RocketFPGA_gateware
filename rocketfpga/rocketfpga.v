@@ -4,7 +4,7 @@ module rocketfpga
 	input OSC,
 
 	// GPIO interface
-	input  USER_BUTTON,
+	input  PRE_RESET,
 	output LED,
 
 	// SPI Interface
@@ -33,14 +33,26 @@ module rocketfpga
 	output TXD,
 	input  RXD,
 
-	// Low frequency ADC
-    output CAPACITOR,
-    output POT_1,
-    output POT_2,
-    input DIFF_IN,
-
-	output IO7,
-	output IO6,
+	// -- Pots Shield --
+	output IO0,
+	output IO1,
+	output IO2,
+	output IO3,
+	// ChalieLEDS
+	inout IO4,
+	inout IO5,
+	inout IO6,
+	inout IO7,
+	// External ADC
+	output IO8,  //CLK
+	input  IO9,  //DOUT
+	output IO10, //DIN
+	output IO11, //N_CS
+	// Buttons
+	input IO12, //B1
+	input IO13, //B2
+	input IO14, //B3
+	input IO15, //B4
 );
 
 	localparam BITSIZE = 16;
@@ -68,6 +80,8 @@ module rocketfpga
 	wire [31:0] coefs_1;
 	wire [31:0] coefs_2;
 	wire [31:0] coefs_3;
+
+	wire [31:0] echo_gains;
 
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
@@ -103,22 +117,12 @@ module rocketfpga
 		.param_13(coefs_1),
 		.param_14(coefs_2),
 		.param_15(coefs_3),
+		.param_16(echo_gains),
 
-		.iparam_1(pot_in),	
-	);
-
-	assign IO7 = CODEC_MOSI;
-	assign IO6 = CODEC_SCLK;
-
-	// Low frequency ADC
-	// This can be done with Vcc and GND
-	assign POT_1 = 1'b1;
-	assign POT_2 = 1'b0;
-	adc ADC1 (
-		.capacitor(CAPACITOR),
-		.osc(OSC),			// 49.152 MHz
-		.sense(DIFF_IN),
-		.out(pot_in),
+		// Pots Shield specific
+		.charlieleds({IO4, IO5, IO6, IO7}),
+		.spi_adc({IO11, IO10, IO9, IO8}),
+		.buttons({!IO12, !IO13, !IO14, !IO15}),
 	);
 
 	// Audio clocking and reset
@@ -155,24 +159,24 @@ module rocketfpga
 		.osc(OSC),
 
 		.enable_1(1),
-		// .enable_2(1),
-		// .enable_3(1),
-		// .enable_4(1),
+		.enable_2(1),
+		.enable_3(1),
+		.enable_4(1),
 
 		.type_1(osc_type[31 -: 2]),
-		// .type_2(osc_type[29 -: 2]),
-		// .type_3(osc_type[27 -: 2]),
-		// .type_4(osc_type[25 -: 2]),
+		.type_2(osc_type[29 -: 2]),
+		.type_3(osc_type[27 -: 2]),
+		.type_4(osc_type[25 -: 2]),
 
 		.out_1(generator_out[0]),
-		// .out_2(generator_out[1]),
-		// .out_3(generator_out[2]),
-		// .out_4(generator_out[3]),
+		.out_2(generator_out[1]),
+		.out_3(generator_out[2]),
+		.out_4(generator_out[3]),
 
 		.freq_1(osc_1),
-		// .freq_2(osc_2),
-		// .freq_3(osc_3),
-		// .freq_4(osc_4),
+		.freq_2(osc_2),
+		.freq_3(osc_3),
+		.freq_4(osc_4),
 	);
 
 	// Mixer 4

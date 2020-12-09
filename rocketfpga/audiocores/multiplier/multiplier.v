@@ -1,3 +1,4 @@
+`default_nettype none
 // out = (in2 * in1)
 module multiplier #(
 	parameter BITSIZE = 16,
@@ -18,7 +19,7 @@ reg signed [(BITSIZE*2)-1:0] aux;
 
 always @(posedge clk) begin
     aux <= in1 * in2;
-    out <= aux[(BITSIZE*2)-1:(BITSIZE)-2];
+    out <= aux[(BITSIZE*2)-1 -:BITSIZE];
 end
 
 endmodule

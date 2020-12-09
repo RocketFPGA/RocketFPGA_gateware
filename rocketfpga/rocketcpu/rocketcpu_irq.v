@@ -1,6 +1,6 @@
 `default_nettype none
 module rocketcpu_irq #(
-   parameter SIZE = 3
+   parameter SIZE = 6
 )(
    input wire 	      i_wb_clk,
    input wire [31:0] i_wb_adr,
