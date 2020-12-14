@@ -77,6 +77,7 @@ module rocketcpu
 	// 0x03000000 				| Codec SPI
 	// 0x04000000 				| UART
 	// 0x05000000 				| GPIO
+	// 0x06000000 				| Random number generator
 	// 0x08000000 				| Timer1
 	// 0x08000004 				| Timer2
 	// 0x09000000 				| IRQ vector
@@ -315,7 +316,7 @@ module rocketcpu
 		.irq(uart_irq),
 	);
 
-	// Memory codec SPI
+	// Codec SPI
 	wire wb_mem_codecspi_enabled;
 	wire wb_mem_ack_codecspi;
 
@@ -331,6 +332,19 @@ module rocketcpu
 		.codec_di(codec_di),
 		.codec_clk(codec_clk),
 		.codec_cs(codec_cs),
+	);
+
+	// Random number generator
+	wire wb_mem_random_enabled;
+	wire wb_mem_ack_random;
+	wire [31:0] wb_mem_rdt_random;
+
+
+	assign wb_mem_random_enabled = wb_mem_cyc && wb_mem_adr ==  32'h0600_0000;
+
+	rocketcpu_random_generator random1 (
+		.i_wb_clk (wb_clk),
+		.o_wb_rdt (wb_mem_rdt_random),
 	);
 	
 	// Data and instructions bus arbiter
@@ -378,6 +392,7 @@ module rocketcpu
 						(wb_mem_charlieleds_enabled)	? wb_mem_rdt_charlieleds 	:
 						(wb_mem_adcspi_enabled)			? wb_mem_rdt_adcspi		 	:
 						(wb_mem_irq_enabled)			? wb_mem_rdt_irq			:
+						(wb_mem_random_enabled)			? wb_mem_rdt_random			:
 						(wb_mem_timer_enabled[0])		? wb_mem_rdt_timer0			: 
 						(wb_mem_timer_enabled[1])		? wb_mem_rdt_timer1			: 32'b0;
 
@@ -389,7 +404,7 @@ module rocketcpu
 						(wb_mem_codecspi_enabled)		? wb_mem_ack_codecspi 		:
 						(wb_mem_irq_enabled)			? wb_mem_ack_irq 			:
 						(wb_mem_adcspi_enabled)			? wb_mem_ack_adcspi			:
-						(wb_mem_gpio_enabled | wb_mem_timer_enabled | wb_mem_charlieleds_enabled ) ? 1'b1 : 1'b0;
+						(wb_mem_gpio_enabled | wb_mem_timer_enabled | wb_mem_charlieleds_enabled | wb_mem_random_enabled ) ? 1'b1 : 1'b0;
     
 	// SERV core
 	serv_rf_top

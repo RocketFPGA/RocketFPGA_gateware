@@ -9,7 +9,6 @@ module rocketfpga
 
 	// SPI Interface
 	output FLASH_CS,
-	output CODEC_CS,
 	output FLASH_CLK,
 	inout  FLASH_IO0,
 	inout  FLASH_IO1,
@@ -34,8 +33,9 @@ module rocketfpga
 	input  RXD,
 
 	// -- Pots Shield --
-	output IO0,
-	output IO1,
+	// Fix for first unit v2
+	// output IO0,
+	// output IO1,
 	output IO2,
 	output IO3,
 	// ChalieLEDS
@@ -86,7 +86,6 @@ module rocketfpga
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
 		.led      		(LED),
-		.button      	(USER_BUTTON),
 
 		.flash_csb (FLASH_CS),
 		.flash_clk (FLASH_CLK),
@@ -134,14 +133,16 @@ module rocketfpga
 	assign MCLK = divider[1]; // 12.288 MHz
 
 	// Line input or mic
-	wire signed [BITSIZE-1:0] mic;
+	wire signed [BITSIZE-1:0] in_l;
+	wire signed [BITSIZE-1:0] in_r;
 	// i2s_rx #( 
 	// 	.BITSIZE(BITSIZE),
 	// ) I2SRX (
 	// 	.sclk (BCLK), 
 	// 	.lrclk (ADCLRC),
 	// 	.sdata (ADCDAT),
-	// 	.left_chan (mic),
+	// 	.left_chan (in_l),
+	// 	.right_chan (in_r),
 	// );
 
 	// Multi waveform generator
@@ -159,23 +160,23 @@ module rocketfpga
 		.osc(OSC),
 
 		.enable_1(1),
-		.enable_2(1),
-		.enable_3(1),
-		.enable_4(1),
-
-		.type_1(osc_type[31 -: 2]),
-		.type_2(osc_type[29 -: 2]),
-		.type_3(osc_type[27 -: 2]),
-		.type_4(osc_type[25 -: 2]),
-
+		// .type_1(osc_type[31 -: 2]),
 		.out_1(generator_out[0]),
-		.out_2(generator_out[1]),
-		.out_3(generator_out[2]),
-		.out_4(generator_out[3]),
-
 		.freq_1(osc_1),
+
+		.enable_2(1),
+		// .type_2(osc_type[29 -: 2]),
+		.out_2(generator_out[1]),
 		.freq_2(osc_2),
+
+		.enable_3(1),
+		// .type_3(osc_type[27 -: 2]),
+		.out_3(generator_out[2]),
 		.freq_3(osc_3),
+
+		.enable_4(1),
+		// .type_4(osc_type[25 -: 2]),
+		.out_4(generator_out[3]),
 		.freq_4(osc_4),
 	);
 
@@ -183,58 +184,48 @@ module rocketfpga
 	wire [BITSIZE-1:0] mixer_in [0:3];
 	wire [BITSIZE-1:0] mixer_out;
 
-	// mixer4_fixed #(
-    // 	.BITSIZE(BITSIZE),
-	// ) MX1 (
-	// 	.in1(mixer_in[0]),
-	// 	.in2(mixer_in[1]),
-	// 	.in3(mixer_in[2]),
-	// 	.in4(mixer_in[3]),
-	// 	.out(mixer_out),
-	// );
+	mixer4_fixed #(
+    	.BITSIZE(BITSIZE),
+	) MX1 (
+		.clk(DACLRC),
+		.in1(mixer_in[0]),
+		.in2(mixer_in[1]),
+		.in3(mixer_in[2]),
+		.in4(mixer_in[3]),
+		.out(mixer_out),
+	);
 
 	// ADSR
-	wire signed [BITSIZE-1:0] envelope;
-	// envelope_generator #(
-	// 	.SAMPLE_CLK_FREQ(48000),
-	// 	.ACCUMULATOR_BITS(16),
-	// ) ENV1 (
-	// 	.clk(divider[12]),
-	// 	.gate(triggers[0]),
-	// 	.att(adsr1_1[31 -: 16]),
-	// 	.dec(adsr1_1[15 -: 16]),
-	// 	.sus(adsr1_2[31 -: 16]),
-	// 	.rel(adsr1_2[15 -: 16]),
-	// 	.amplitude(envelope),
-	// );
+	wire signed [BITSIZE-1:0] adsr_in;
+	wire signed [BITSIZE-1:0] adsr_out;
+	envelope_generator ENV1 (
+		.clk (ADCLRC),
+		.gate (triggers[0]),
+		.att (adsr1_1[31 -: 16]),
+		.dec (adsr1_1[15 -: 16]),
+		.sus (adsr1_2[31 -: 16]),
+		.rel (adsr1_2[15 -: 16]),
 
-	// Multiplier
-	wire signed [BITSIZE-1:0] mult_out;
-	wire signed [BITSIZE-1:0] mult_in1;
-	wire signed [BITSIZE-1:0] mult_in2;
-	// multiplier #(
-	// 	.BITSIZE(BITSIZE),
-	// ) M1 (
-	// 	.clk(DACLRC),
-	// 	.in1(mult_in1),
-	// 	.in2(mult_in2),
-	// 	.out(mult_out),
-	// );
+		.in (adsr_in),
+		.out (adsr_out),
+	);
 
 	// Echo
 	wire signed [BITSIZE-1:0] echo_in;
 	wire signed [BITSIZE-1:0] echo_out;
 
-	// echo #( 
-	// 	.BITSIZE(BITSIZE),
-	// ) E1 (
-	// 	.enable(triggers[5]),
-	// 	.bclk (BCLK), 
-	// 	.lrclk (ADCLRC),
-	// 	.offset(echo_offset),
-	// 	.in (echo_in),
-	// 	.out (echo_out),
-	// );
+	echo #( 
+		.BITSIZE(BITSIZE),
+	) E1 (
+		.enable(triggers[5]),
+		.bclk (BCLK), 
+		.lrclk (ADCLRC),
+		.offset(echo_offset),
+		.dry_gain (echo_gains[31 -: 16]),
+		.wet_gain (echo_gains[15 -: 16]),
+		.in (echo_in),
+		.out (echo_out),
+	);
 
 	// Modulator
 	wire signed [BITSIZE-1:0] mod_in1;
@@ -257,21 +248,21 @@ module rocketfpga
 	wire signed [BITSIZE-1:0] biquad_in;
 	wire signed [BITSIZE-1:0] biquad_out;
 
-	biquad #( 
-		.BITSIZE(BITSIZE),
-	) BQD1 (
-		.bclk (BCLK), 
-		.lrclk (ADCLRC),
+	// biquad #( 
+	// 	.BITSIZE(BITSIZE),
+	// ) BQD1 (
+	// 	.bclk (BCLK), 
+	// 	.lrclk (ADCLRC),
 
-		.in (biquad_in),
-		.out (biquad_out),
+	// 	.in (biquad_in),
+	// 	.out (biquad_out),
 
-		.a0 (coefs_1[31 -: 16]),
-		.a1 (coefs_1[15 -: 16]),
-		.a2 (coefs_2[31 -: 16]),
-		.b1 (coefs_2[15 -: 16]),
-		.b2 (coefs_3[31 -: 16]),
-	);
+	// 	.a0 (coefs_1[31 -: 16]),
+	// 	.a1 (coefs_1[15 -: 16]),
+	// 	.a2 (coefs_2[31 -: 16]),
+	// 	.b1 (coefs_2[15 -: 16]),
+	// 	.b2 (coefs_3[31 -: 16]),
+	// );
 
 	// Line out
 	wire signed [BITSIZE-1:0] out_r;
@@ -297,19 +288,20 @@ module rocketfpga
 		.in3(generator_out[2]),
 		.in4(generator_out[3]),
 		.in5(mixer_out),
-		.in6(mult_out),
+		.in6(adsr_out),
 		.in7(echo_out),
-		.in8(envelope),
+		.in8(),
 		.in9(mod_out),
-		.in10(mic),
-		.in11(biquad_out),
+		.in10(in_l),
+		.in11(in_r),
+  		.in12(biquad_out),
 
 		.out1(mixer_in[0]),
 		.out2(mixer_in[1]),
 		.out3(mixer_in[2]),
 		.out4(mixer_in[3]),
-		.out5(mult_in1),
-		.out6(mult_in2),
+		.out5(adsr_in),
+		.out6(),
 		.out7(echo_in),
 		.out8(out_r),
 		.out9(out_l),
@@ -331,6 +323,5 @@ module rocketfpga
 		.sel_out10(matrix_2[7 -: 4]),
 		.sel_out9(matrix_2[3 -: 4]),
 	);
-
 
 endmodule

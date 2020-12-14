@@ -1,6 +1,6 @@
 import math
 
-ins = 11
+ins = 12
 outs = 12
 
 v = """
@@ -47,7 +47,7 @@ v = """
 //   .BITSIZE(BITSIZE),
 //) M{:d}x{:d} (\n""".format(ins,outs)
 
-v = v + "//   .clk{:d}(),\n".format(i+1)
+v = v + "//   .clk(),\n"
 
 for i in range(ins):
     v = v + "//   .in{:d}(),\n".format(i+1)

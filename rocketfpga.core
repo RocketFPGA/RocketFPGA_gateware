@@ -20,6 +20,7 @@ filesets:
       - rocketfpga/rocketcpu/rocketcpu_ram.v
       - rocketfpga/rocketcpu/rocketcpu_chalieleds.v
       - rocketfpga/rocketcpu/rocketcpu_ADC128S102.v
+      - rocketfpga/rocketcpu/rocketcpu_random_generator.v
       - rocketfpga/rocketcpu/rocketcpu_irq.v
       - rocketfpga/rocketcpu/rocketcpu.v
       - rocketfpga/rocketcpu/spimemio.v
@@ -29,7 +30,7 @@ filesets:
       - rocketfpga/audiocores/waveform_generators/multigenerator.v
       - rocketfpga/audiocores/mixers/mixer4_fixed.v
       - rocketfpga/audiocores/mixers/mixer2_fixed.v
-      - rocketfpga/audiocores/ADSR/adsr.v
+      - rocketfpga/audiocores/ADSR/adsrv2.v
       - rocketfpga/audiocores/multiplier/multiplier.v
       - rocketfpga/audiocores/echo/echo.v
       - rocketfpga/audiocores/echo/memory.v

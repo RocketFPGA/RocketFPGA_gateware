@@ -109,7 +109,7 @@ always @(posedge bclk) begin
     end 
     
     if (counter == 0) begin
-        if (type_1 == 0) begin
+        // if (type_1 == 0) begin
             // Sine generation part 1
             negate_1[0] <= phase_1[(PHASESIZE-1)];
             if (phase_1[(PHASESIZE-2)])
@@ -117,26 +117,27 @@ always @(posedge bclk) begin
             else
                 table_index <=  phase_1[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
             counter <= counter + 1;
-        end else if (type_1 == 1) begin
-            // Ramp generation
-            out_1 <= phase_1[PHASESIZE-1 -: BITSIZE];
-            counter <= counter + 2;
-        end else if (type_1 == 2) begin
-            // Square generation
-            out_1 <= {phase_1[PHASESIZE-1],{(BITSIZE-1){~phase_1[PHASESIZE-1]}}};
-            counter <= counter + 2;
-        end else if (type_1 == 3) begin
-            // Triangle generation
-            if (phase_1[PHASESIZE-1] && phase_1[PHASESIZE-2])
-                out_1 <= {1'b0, ~phase_1[PHASESIZE-3 -: BITSIZE-1]};
-            else if (phase_1[PHASESIZE-1] && !phase_1[PHASESIZE-2])
-                out_1 <= {1'b0, phase_1[PHASESIZE-3 -: BITSIZE-1]};
-            else if (!phase_1[PHASESIZE-1] && phase_1[PHASESIZE-2])
-                out_1 <= {1'b1, phase_1[PHASESIZE-3 -: BITSIZE-1]};
-            else if (!phase_1[PHASESIZE-1] && !phase_1[PHASESIZE-2])
-                out_1 <= {1'b1, ~phase_1[PHASESIZE-3 -: BITSIZE-1]};
-        end   
-    end else if (counter == 1) begin
+        // end else if (type_1 == 1) begin
+        //     // Ramp generation
+        //     out_1 <= phase_1[PHASESIZE-1 -: BITSIZE];
+        //     counter <= counter + 2;
+        // end else if (type_1 == 2) begin
+        //     // Square generation
+        //     out_1 <= {phase_1[PHASESIZE-1],{(BITSIZE-1){~phase_1[PHASESIZE-1]}}};
+        //     counter <= counter + 2;
+        // end else if (type_1 == 3) begin
+        //     // Triangle generation
+        //     if (phase_1[PHASESIZE-1] && phase_1[PHASESIZE-2])
+        //         out_1 <= {1'b0, ~phase_1[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (phase_1[PHASESIZE-1] && !phase_1[PHASESIZE-2])
+        //         out_1 <= {1'b0, phase_1[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_1[PHASESIZE-1] && phase_1[PHASESIZE-2])
+        //         out_1 <= {1'b1, phase_1[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_1[PHASESIZE-1] && !phase_1[PHASESIZE-2])
+        //         out_1 <= {1'b1, ~phase_1[PHASESIZE-3 -: BITSIZE-1]};
+        // end   
+    end 
+    else if (counter == 1) begin
         val_1 <= table_out;
 
         negate_1[1] <= negate_1[0];
@@ -147,34 +148,36 @@ always @(posedge bclk) begin
             out_1 <= enable_1 ? val_1 : 0;
         
         counter <= counter + 1;
-    end else if (counter == 2) begin
-        if (type_2 == 0) begin
+    end 
+    else if (counter == 2) begin
+        // if (type_2 == 0) begin
             negate_2[0] <= phase_2[(PHASESIZE-1)];
             if (phase_2[(PHASESIZE-2)])
                 table_index <= ~phase_2[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
             else
                 table_index <=  phase_2[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
             counter <= counter + 1;
-        end else if (type_2 == 1) begin
-            // Ramp generation
-            out_2 <= phase_2[PHASESIZE-1 -: BITSIZE];
-            counter <= counter + 2;
-        end else if (type_2 == 2) begin
-            // Square generation
-            out_2 <= {phase_2[PHASESIZE-1],{(BITSIZE-1){~phase_2[PHASESIZE-1]}}};
-            counter <= counter + 2;
-        end else if (type_2 == 3) begin
-            // Triangle generation
-            if (phase_2[PHASESIZE-1] && phase_2[PHASESIZE-2])
-                out_2 <= {1'b0, ~phase_2[PHASESIZE-3 -: BITSIZE-1]};
-            else if (phase_2[PHASESIZE-1] && !phase_2[PHASESIZE-2])
-                out_2 <= {1'b0, phase_2[PHASESIZE-3 -: BITSIZE-1]};
-            else if (!phase_2[PHASESIZE-1] && phase_2[PHASESIZE-2])
-                out_2 <= {1'b1, phase_2[PHASESIZE-3 -: BITSIZE-1]};
-            else if (!phase_2[PHASESIZE-1] && !phase_2[PHASESIZE-2])
-                out_2 <= {1'b1, ~phase_2[PHASESIZE-3 -: BITSIZE-1]};
-        end   
-    end else if (counter == 3) begin
+        // end else if (type_2 == 1) begin
+        //     // Ramp generation
+        //     out_2 <= phase_2[PHASESIZE-1 -: BITSIZE];
+        //     counter <= counter + 2;
+        // end else if (type_2 == 2) begin
+        //     // Square generation
+        //     out_2 <= {phase_2[PHASESIZE-1],{(BITSIZE-1){~phase_2[PHASESIZE-1]}}};
+        //     counter <= counter + 2;
+        // end else if (type_2 == 3) begin
+        //     // Triangle generation
+        //     if (phase_2[PHASESIZE-1] && phase_2[PHASESIZE-2])
+        //         out_2 <= {1'b0, ~phase_2[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (phase_2[PHASESIZE-1] && !phase_2[PHASESIZE-2])
+        //         out_2 <= {1'b0, phase_2[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_2[PHASESIZE-1] && phase_2[PHASESIZE-2])
+        //         out_2 <= {1'b1, phase_2[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_2[PHASESIZE-1] && !phase_2[PHASESIZE-2])
+        //         out_2 <= {1'b1, ~phase_2[PHASESIZE-3 -: BITSIZE-1]};
+        // end   
+    end
+    else if (counter == 3) begin
         val_2 <= table_out;
 
         negate_2[1] <= negate_2[0];
@@ -185,34 +188,36 @@ always @(posedge bclk) begin
             out_2 <= enable_2 ? val_2 : 0;
         
         counter <= counter + 1;
-    end else if (counter == 4) begin
-        if (type_3 == 0) begin
+    end
+    else if (counter == 4) begin
+        // if (type_3 == 0) begin
             negate_3[0] <= phase_3[(PHASESIZE-1)];
             if (phase_3[(PHASESIZE-2)])
                 table_index <= ~phase_3[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
             else
                 table_index <=  phase_3[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
             counter <= counter + 1;
-        end else if (type_3 == 1) begin
-            // Ramp generation
-            out_3 <= phase_3[PHASESIZE-1 -: BITSIZE];
-            counter <= counter + 2;
-        end else if (type_3 == 2) begin
-            // Square generation
-            out_3 <= {phase_3[PHASESIZE-1],{(BITSIZE-1){~phase_3[PHASESIZE-1]}}};
-            counter <= counter + 2;
-        end else if (type_3 == 3) begin
-            // Triangle generation
-            if (phase_3[PHASESIZE-1] && phase_3[PHASESIZE-2])
-                out_3 <= {1'b0, ~phase_3[PHASESIZE-3 -: BITSIZE-1]};
-            else if (phase_3[PHASESIZE-1] && !phase_3[PHASESIZE-2])
-                out_3 <= {1'b0, phase_3[PHASESIZE-3 -: BITSIZE-1]};
-            else if (!phase_3[PHASESIZE-1] && phase_3[PHASESIZE-2])
-                out_3 <= {1'b1, phase_3[PHASESIZE-3 -: BITSIZE-1]};
-            else if (!phase_3[PHASESIZE-1] && !phase_3[PHASESIZE-2])
-                out_3 <= {1'b1, ~phase_3[PHASESIZE-3 -: BITSIZE-1]};
-        end   
-    end else if (counter == 5) begin
+        // end else if (type_3 == 1) begin
+        //     // Ramp generation
+        //     out_3 <= phase_3[PHASESIZE-1 -: BITSIZE];
+        //     counter <= counter + 2;
+        // end else if (type_3 == 2) begin
+        //     // Square generation
+        //     out_3 <= {phase_3[PHASESIZE-1],{(BITSIZE-1){~phase_3[PHASESIZE-1]}}};
+        //     counter <= counter + 2;
+        // end else if (type_3 == 3) begin
+        //     // Triangle generation
+        //     if (phase_3[PHASESIZE-1] && phase_3[PHASESIZE-2])
+        //         out_3 <= {1'b0, ~phase_3[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (phase_3[PHASESIZE-1] && !phase_3[PHASESIZE-2])
+        //         out_3 <= {1'b0, phase_3[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_3[PHASESIZE-1] && phase_3[PHASESIZE-2])
+        //         out_3 <= {1'b1, phase_3[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_3[PHASESIZE-1] && !phase_3[PHASESIZE-2])
+        //         out_3 <= {1'b1, ~phase_3[PHASESIZE-3 -: BITSIZE-1]};
+        // end   
+    end 
+    else if (counter == 5) begin
         val_3 <= table_out;
 
         negate_3[1] <= negate_3[0];
@@ -224,46 +229,47 @@ always @(posedge bclk) begin
         
         counter <= counter + 1;
 
-    end
-    // end else if (counter == 6) begin
-    //     if (type_4 == 0) begin
-    //         negate_4[0] <= phase_4[(PHASESIZE-1)];
-    //         if (phase_4[(PHASESIZE-2)])
-    //             table_index <= ~phase_4[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
-    //         else
-    //             table_index <=  phase_4[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
-    //         counter <= counter + 1;
-    //     end else if (type_4 == 1) begin
-    //         // Ramp generation
-    //         out_4 <= phase_4[PHASESIZE-1 -: BITSIZE];
-    //         counter <= counter + 2;
-    //     end else if (type_4 == 2) begin
-    //         // Square generation
-    //         out_4 <= {phase_4[PHASESIZE-1],{(BITSIZE-1){~phase_4[PHASESIZE-1]}}};
-    //         counter <= counter + 2;
-    //     end else if (type_4 == 3) begin
-    //         // Triangle generation
-    //         if (phase_4[PHASESIZE-1] && phase_4[PHASESIZE-2])
-    //             out_1 <= {1'b0, ~phase_4[PHASESIZE-3 -: BITSIZE-1]};
-    //         else if (phase_4[PHASESIZE-1] && !phase_4[PHASESIZE-2])
-    //             out_1 <= {1'b0, phase_4[PHASESIZE-3 -: BITSIZE-1]};
-    //         else if (!phase_4[PHASESIZE-1] && phase_4[PHASESIZE-2])
-    //             out_1 <= {1'b1, phase_4[PHASESIZE-3 -: BITSIZE-1]};
-    //         else if (!phase_4[PHASESIZE-1] && !phase_4[PHASESIZE-2])
-    //             out_1 <= {1'b1, ~phase_4[PHASESIZE-3 -: BITSIZE-1]};
-    //     end   
-    // end else if (counter == 7) begin
-    //     val_4 <= table_out;
+    end 
+    else if (counter == 6) begin
+        // if (type_4 == 0) begin
+            negate_4[0] <= phase_4[(PHASESIZE-1)];
+            if (phase_4[(PHASESIZE-2)])
+                table_index <= ~phase_4[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
+            else
+                table_index <=  phase_4[PHASESIZE-3:PHASESIZE-TABLESIZE-2];
+            counter <= counter + 1;
+        // end else if (type_4 == 1) begin
+        //     // Ramp generation
+        //     out_4 <= phase_4[PHASESIZE-1 -: BITSIZE];
+        //     counter <= counter + 2;
+        // end else if (type_4 == 2) begin
+        //     // Square generation
+        //     out_4 <= {phase_4[PHASESIZE-1],{(BITSIZE-1){~phase_4[PHASESIZE-1]}}};
+        //     counter <= counter + 2;
+        // end else if (type_4 == 3) begin
+        //     // Triangle generation
+        //     if (phase_4[PHASESIZE-1] && phase_4[PHASESIZE-2])
+        //         out_1 <= {1'b0, ~phase_4[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (phase_4[PHASESIZE-1] && !phase_4[PHASESIZE-2])
+        //         out_1 <= {1'b0, phase_4[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_4[PHASESIZE-1] && phase_4[PHASESIZE-2])
+        //         out_1 <= {1'b1, phase_4[PHASESIZE-3 -: BITSIZE-1]};
+        //     else if (!phase_4[PHASESIZE-1] && !phase_4[PHASESIZE-2])
+        //         out_1 <= {1'b1, ~phase_4[PHASESIZE-3 -: BITSIZE-1]};
+        // end   
+    end 
+    else if (counter == 7) begin
+        val_4 <= table_out;
 
-    //     negate_4[1] <= negate_4[0];
+        negate_4[1] <= negate_4[0];
 
-    //     if (negate_4[1])
-    //         out_4 <= enable_4 ? -val_4 : 0;
-    //     else
-    //         out_4 <= enable_4 ? val_4 : 0;
+        if (negate_4[1])
+            out_4 <= enable_4 ? -val_4 : 0;
+        else
+            out_4 <= enable_4 ? val_4 : 0;
         
-    //     counter <= counter + 1;
-    // end
+        counter <= counter + 1;
+    end
 end
 
 

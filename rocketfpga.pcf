@@ -18,8 +18,6 @@ set_io FLASH_IO3  13
 set_io LED     47
 
 # CODEC SPI Interface
-#set_io CODEC_SCLK 41
-#set_io CODEC_MOSI 40
 set_io CODEC_SCLK 9
 set_io CODEC_MOSI 10
 set_io CODEC_CS 39
@@ -36,8 +34,6 @@ set_io DACDAT 32
 # External interface
 #set_io IO0  9
 #set_io IO1  10
-set_io IO0  41
-set_io IO1  40
 set_io IO2  4
 set_io IO3  20
 set_io IO4  21
