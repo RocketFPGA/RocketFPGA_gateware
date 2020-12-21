@@ -83,6 +83,9 @@ module rocketfpga
 
 	wire [31:0] echo_gains;
 
+	wire [31:0] compressor_params;
+	wire [31:0] compressor_params2;
+
 	rocketcpu rocketcpu(
 		.external_rst 	(1'b0),
 		.led      		(LED),
@@ -117,6 +120,8 @@ module rocketfpga
 		.param_14(coefs_2),
 		.param_15(coefs_3),
 		.param_16(echo_gains),
+		.param_17(compressor_params),
+		.param_18(compressor_params2),
 
 		// Pots Shield specific
 		.charlieleds({IO4, IO5, IO6, IO7}),
@@ -135,15 +140,15 @@ module rocketfpga
 	// Line input or mic
 	wire signed [BITSIZE-1:0] in_l;
 	wire signed [BITSIZE-1:0] in_r;
-	// i2s_rx #( 
-	// 	.BITSIZE(BITSIZE),
-	// ) I2SRX (
-	// 	.sclk (BCLK), 
-	// 	.lrclk (ADCLRC),
-	// 	.sdata (ADCDAT),
-	// 	.left_chan (in_l),
-	// 	.right_chan (in_r),
-	// );
+	i2s_rx #( 
+		.BITSIZE(BITSIZE),
+	) I2SRX (
+		.sclk (BCLK), 
+		.lrclk (ADCLRC),
+		.sdata (ADCDAT),
+		.left_chan (in_l),
+		.right_chan (in_r),
+	);
 
 	// Multi waveform generator
 	wire [BITSIZE-1:0] generator_out [0:3];
@@ -164,68 +169,86 @@ module rocketfpga
 		.out_1(generator_out[0]),
 		.freq_1(osc_1),
 
-		.enable_2(1),
-		// .type_2(osc_type[29 -: 2]),
-		.out_2(generator_out[1]),
-		.freq_2(osc_2),
+		// .enable_2(1),
+		// // .type_2(osc_type[29 -: 2]),
+		// .out_2(generator_out[1]),
+		// .freq_2(osc_2),
 
-		.enable_3(1),
-		// .type_3(osc_type[27 -: 2]),
-		.out_3(generator_out[2]),
-		.freq_3(osc_3),
+		// .enable_3(1),
+		// // .type_3(osc_type[27 -: 2]),
+		// .out_3(generator_out[2]),
+		// .freq_3(osc_3),
 
-		.enable_4(1),
-		// .type_4(osc_type[25 -: 2]),
-		.out_4(generator_out[3]),
-		.freq_4(osc_4),
+		// .enable_4(1),
+		// // .type_4(osc_type[25 -: 2]),
+		// .out_4(generator_out[3]),
+		// .freq_4(osc_4),
+	);
+
+	// Compressor
+	wire [BITSIZE-1:0] compressor_in;
+	wire [BITSIZE-1:0] compressor_out;
+
+	compressor #(
+    	.BITSIZE(BITSIZE),
+	) C1 (
+		.bclk (BCLK), 
+		.lrclk (ADCLRC),
+		.in(compressor_in),
+		.thr(compressor_params[31 -: 16]),
+		.ratio(compressor_params[15 -: 16]),
+		.attack(compressor_params2[31 -: 16]),
+		.releas(compressor_params2[15 -: 16]),
+		.out(compressor_out),
 	);
 
 	// Mixer 4
 	wire [BITSIZE-1:0] mixer_in [0:3];
 	wire [BITSIZE-1:0] mixer_out;
 
-	mixer4_fixed #(
-    	.BITSIZE(BITSIZE),
-	) MX1 (
-		.clk(DACLRC),
-		.in1(mixer_in[0]),
-		.in2(mixer_in[1]),
-		.in3(mixer_in[2]),
-		.in4(mixer_in[3]),
-		.out(mixer_out),
-	);
+	// mixer4_fixed #(
+    // 	.BITSIZE(BITSIZE),
+	// ) MX1 (
+	// 	.clk(DACLRC),
+	// 	.in1(mixer_in[0]),
+	// 	.in2(mixer_in[1]),
+	// 	.in3(mixer_in[2]),
+	// 	.in4(mixer_in[3]),
+	// 	.out(mixer_out),
+	// );
 
 	// ADSR
 	wire signed [BITSIZE-1:0] adsr_in;
 	wire signed [BITSIZE-1:0] adsr_out;
-	envelope_generator ENV1 (
-		.clk (ADCLRC),
-		.gate (triggers[0]),
-		.att (adsr1_1[31 -: 16]),
-		.dec (adsr1_1[15 -: 16]),
-		.sus (adsr1_2[31 -: 16]),
-		.rel (adsr1_2[15 -: 16]),
 
-		.in (adsr_in),
-		.out (adsr_out),
-	);
+	// envelope_generator ENV1 (
+	// 	.clk (ADCLRC),
+	// 	.gate (triggers[0]),
+	// 	.att (adsr1_1[31 -: 16]),
+	// 	.dec (adsr1_1[15 -: 16]),
+	// 	.sus (adsr1_2[31 -: 16]),
+	// 	.rel (adsr1_2[15 -: 16]),
+
+	// 	.in (adsr_in),
+	// 	.out (adsr_out),
+	// );
 
 	// Echo
 	wire signed [BITSIZE-1:0] echo_in;
 	wire signed [BITSIZE-1:0] echo_out;
 
-	echo #( 
-		.BITSIZE(BITSIZE),
-	) E1 (
-		.enable(triggers[5]),
-		.bclk (BCLK), 
-		.lrclk (ADCLRC),
-		.offset(echo_offset),
-		.dry_gain (echo_gains[31 -: 16]),
-		.wet_gain (echo_gains[15 -: 16]),
-		.in (echo_in),
-		.out (echo_out),
-	);
+	// echo #( 
+	// 	.BITSIZE(BITSIZE),
+	// ) E1 (
+	// 	.enable(triggers[5]),
+	// 	.bclk (BCLK), 
+	// 	.lrclk (ADCLRC),
+	// 	.offset(echo_offset),
+	// 	.dry_gain (echo_gains[31 -: 16]),
+	// 	.wet_gain (echo_gains[15 -: 16]),
+	// 	.in (echo_in),
+	// 	.out (echo_out),
+	// );
 
 	// Modulator
 	wire signed [BITSIZE-1:0] mod_in1;
@@ -290,7 +313,7 @@ module rocketfpga
 		.in5(mixer_out),
 		.in6(adsr_out),
 		.in7(echo_out),
-		.in8(),
+		.in8(compressor_out),
 		.in9(mod_out),
 		.in10(in_l),
 		.in11(in_r),
@@ -301,7 +324,7 @@ module rocketfpga
 		.out3(mixer_in[2]),
 		.out4(mixer_in[3]),
 		.out5(adsr_in),
-		.out6(),
+		.out6(compressor_in),
 		.out7(echo_in),
 		.out8(out_r),
 		.out9(out_l),

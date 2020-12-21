@@ -39,6 +39,7 @@ filesets:
       - rocketfpga/audiocores/modulator/modulator.v
       - rocketfpga/audiocores/biquad/biquad.v
       - rocketfpga/audiocores/attenuator/attenuator.v
+      - rocketfpga/audiocores/compressor/compressor.v
     file_type : verilogSource
     depend : [serv, "fusesoc:utils:generators"]
 

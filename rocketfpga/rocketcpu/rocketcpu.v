@@ -40,8 +40,8 @@ module rocketcpu
 	output [31:0] param_14,
 	output [31:0] param_15,
 	output [31:0] param_16,
-
-	input [31:0] iparam_1,
+	output [31:0] param_17,
+	output [31:0] param_18,
 );
 	// 12 MHz system clock
 	wire      wb_clk;
@@ -164,8 +164,8 @@ module rocketcpu
 		.param_14(param_14),
 		.param_15(param_15),
 		.param_16(param_16),
-
-		.iparam_1(iparam_1),
+		.param_17(param_17),
+		.param_18(param_18),
 	);
 
 	// Memory mapped GPIO
